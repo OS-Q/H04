@@ -12,14 +12,14 @@
         "type": "git",
         "url": "https://github.com/sipeed/platform-gd32v.git"
     },
-    "version": "0.0.1",
+    "version": "1.0.0",
     "packageRepositories": [
         "https://dl.bintray.com/platformio/dl-packages/manifest.json",
         "http://dl.platformio.org/packages/manifest.json"
     ],
     "frameworks": {
         "gd32vfl": {
-            "package": "framework-gd32v",
+            "package": "framework-gd32vfl",
             "script": "builder/frameworks/gd32v.py"
         },
         "arduino": {
@@ -28,7 +28,7 @@
         }
     },
     "packages": {
-        "framework-gd32v": {
+        "framework-gd32vfl": {
             "optional": true,
             "type": "framework",
             "version": "https://github.com/OS-Q/N6.git"
