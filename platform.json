@@ -1,0 +1,57 @@
+{
+    "name": "GD32V",
+    "title": "GD32V",
+    "description": "GD32V RISC-V内核MCU.",
+    "url": "https://www.sipeed.com",
+    "homepage": "http://",
+    "license": " ",
+    "engines": {
+        "platformio": "<5"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/sipeed/platform-gd32v.git"
+    },
+    "version": "0.0.1",
+    "packageRepositories": [
+        "https://dl.bintray.com/platformio/dl-packages/manifest.json",
+        "http://dl.platformio.org/packages/manifest.json"
+    ],
+    "frameworks": {
+        "gd32vfl": {
+            "package": "framework-gd32v",
+            "script": "builder/frameworks/gd32v.py"
+        },
+        "arduino": {
+            "package": "framework-gd32varduino",
+            "script": "builder/frameworks/arduino.py"
+        }
+    },
+    "packages": {
+        "framework-gd32v": {
+            "optional": true,
+            "type": "framework",
+            "version": "https://github.com/OS-Q/N6.git"
+        },
+        "framework-gd32varduino": {
+            "optional":true,
+            "type": "framework",
+            "version": "https://github.com/OS-Q/N7.git"
+        },
+        "tool-openocd-gd32v": {
+            "optional": true,
+            "type": "uploader",
+            "version": "~0.1.0"
+        },
+        "tool-stm32duino": {
+            "type": "uploader",
+            "optional": true,
+            "version": "~1.0.1"
+        },
+        "toolchain-riscv": {
+            "type": "toolchain",
+            "version": "~1.70200.0"
+        }
+    }
+
+}

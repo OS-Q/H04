@@ -1,0 +1,89 @@
+{
+    "build": {
+        "f_cpu": "108000000L",
+        "hwids": [
+            [
+                "0x28e9",
+                "0x058f"
+            ]
+        ],
+        "ldscript": "GD32VF103xB.lds",
+        "mabi": "ilp32",
+        "march": "rv32imac",
+        "mcmodel": "medlow",
+        "mcu": "GD32VF103VBT6",
+        "variant": "gd32vf103_eval",
+        "board_def": "BOARD_GD32VF103_EVAL",
+        "hxtal_value": "8000000"
+    },
+    "debug": {
+        "tools": {
+            "gd-link": {
+                "init_cmds": [
+                    "define pio_reset_halt_target",
+                    "   monitor init",
+                    "   monitor halt",
+                    "end",
+                    "define pio_reset_target",
+                    "   pio_reset_halt_target",
+                    "end",
+                    "target remote $DEBUG_PORT",
+                    "set arch riscv:rv32",
+                    "set mem inaccessible-by-default off",
+                    "set remotetimeout 250",
+                    "$INIT_BREAK",
+                    "$LOAD_CMD",
+                    "pio_reset_halt_target"
+                ],
+                "onboard": true,
+                "server": {
+                    "arguments": [
+                        "-f",
+                        "scripts/temp/openocd_gdlink.cfg"
+                    ],
+                    "executable": "bin/openocd",
+                    "package": "tool-openocd-gd32v"
+                }
+            },
+            "jlink": {
+                "init_cmds": [
+                    "define pio_reset_halt_target",
+                    "   monitor init",
+                    "   monitor halt",
+                    "end",
+                    "define pio_reset_target",
+                    "   pio_reset_halt_target",
+                    "end",
+                    "target remote $DEBUG_PORT",
+                    "set arch riscv:rv32",
+                    "set mem inaccessible-by-default off",
+                    "set remotetimeout 250",
+                    "$INIT_BREAK",
+                    "$LOAD_CMD",
+                    "pio_reset_halt_target"
+                ],
+                "onboard": false,
+                "server": {
+                    "arguments": [
+                        "-f",
+                        "scripts/temp/openocd_jlink.cfg"
+                    ],
+                    "executable": "bin/openocd",
+                    "package": "tool-openocd-gd32v"
+                }
+            }
+        }
+    },
+    "frameworks": [
+        "gd32vfl",
+        "arduino"
+    ],
+    "name": "GD32VF103V-EVAL",
+    "upload": {
+        "maximum_ram_size": 32768,
+        "maximum_size": 131072,
+        "protocol": "gd-link"
+    },
+    "url": "https://www.sipeed.com/",
+    "vendor": "Sipeed"
+}
