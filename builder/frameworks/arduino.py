@@ -6,7 +6,7 @@ env = DefaultEnvironment()
 
 board = env.BoardConfig()
 
-FRAMEWORK_DIR = env.PioPlatform().get_package_dir("framework-gd32varduino")
+FRAMEWORK_DIR = env.PioPlatform().get_package_dir("framework-N7")
 assert FRAMEWORK_DIR and isdir(FRAMEWORK_DIR)
 SDK_DIR = join(FRAMEWORK_DIR, "cores", "arduino", "gd32vfl")
 

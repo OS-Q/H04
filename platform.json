@@ -1,16 +1,16 @@
 {
-    "name": "GD32V",
-    "title": "GD32V",
-    "description": "GD32V RISC-V内核MCU.",
+    "name": "H2",
+    "title": "H2",
+    "description": "RISC-V MCU开发平台",
     "url": "https://www.sipeed.com",
-    "homepage": "http://",
+    "homepage": "https://github.com/OS-Q/H2",
     "license": " ",
     "engines": {
         "platformio": "<5"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/sipeed/platform-gd32v.git"
+        "url": "https://github.com/OS-Q/H2.git"
     },
     "version": "1.0.0",
     "packageRepositories": [
@@ -19,21 +19,21 @@
     ],
     "frameworks": {
         "gd32vfl": {
-            "package": "framework-gd32vfl",
+            "package": "framework-N6",
             "script": "builder/frameworks/gd32v.py"
         },
         "arduino": {
-            "package": "framework-gd32varduino",
+            "package": "framework-N7",
             "script": "builder/frameworks/arduino.py"
         }
     },
     "packages": {
-        "framework-gd32vfl": {
+        "framework-N6": {
             "optional": true,
             "type": "framework",
             "version": "https://github.com/OS-Q/N6.git"
         },
-        "framework-gd32varduino": {
+        "framework-N7": {
             "optional":true,
             "type": "framework",
             "version": "https://github.com/OS-Q/N7.git"
