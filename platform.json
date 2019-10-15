@@ -1,7 +1,7 @@
 {
     "name": "H2",
     "title": "H2",
-    "description": "RISC-V MCU开发平台",
+    "description": "RISC-V GD32V开发平台",
     "url": "https://www.sipeed.com",
     "homepage": "https://github.com/OS-Q/H2",
     "license": " ",
