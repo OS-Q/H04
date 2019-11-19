@@ -1,19 +1,23 @@
 {
-    "name": "H2",
-    "title": "H2",
-    "description": "RISC-V GD32V开发平台",
+    "name": "H4",
+    "title": "H4",
+    "description": "RISC-V开发平台",
     "url": "https://www.sipeed.com",
-    "homepage": "https://github.com/OS-Q/H2",
+    "homepage": "https://github.com/OS-Q/H4",
     "license": " ",
     "engines": {
         "platformio": "<5"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/OS-Q/H2.git"
+        "url": "https://github.com/OS-Q/H4.git"
     },
     "version": "1.0.0",
     "packageRepositories": [
+        "http://182.61.61.133/link/toolchain/manifest.json",
+        "http://182.61.61.133/link/framework/manifest.json",
+        "http://182.61.61.133/link/platformio.json",
+        "http://182.61.61.133/link/platform.json",
         "https://dl.bintray.com/platformio/dl-packages/manifest.json",
         "http://dl.platformio.org/packages/manifest.json"
     ],
