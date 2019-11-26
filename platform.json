@@ -1,9 +1,9 @@
 {
     "name": "H4",
     "title": "H4",
-    "description": "RISC-V开发平台",
+    "description": "RISC-V GD32V开发平台",
     "url": "https://www.sipeed.com",
-    "homepage": "https://github.com/OS-Q/H4",
+    "homepage": "https://www.OS-Q.com/H4",
     "license": " ",
     "engines": {
         "platformio": "<5"
@@ -42,15 +42,24 @@
             "type": "framework",
             "version": "https://github.com/OS-Q/N7.git"
         },
-        "tool-openocd-gd32v": {
-            "optional": true,
-            "type": "uploader",
-            "version": "~0.1.0"
-        },
         "tool-stm32duino": {
             "type": "uploader",
             "optional": true,
             "version": "~1.0.1"
+        },
+        "tool-openocd-gd32v": {
+            "optional": true,
+            "type": "uploader",
+            "version": "~0.1.1"
+        },
+        "tool-gd32vflash": {
+            "type": "uploader",
+            "optional": true,
+            "version": "~0.1.0"
+        },
+        "toolchain-gd32v": {
+            "type": "toolchain",
+            "version": "~9.2.0"
         },
         "toolchain-riscv": {
             "type": "toolchain",

@@ -9,7 +9,7 @@
 
 ### [Platform描述](https://github.com/OS-Q/H4/wiki) 
 
-[Platform H4](https://github.com/OS-Q/H4) 基于PlatformIO平台，用于RISC-V软件开发
+[Platform H4](https://github.com/OS-Q/H4) 基于PlatformIO平台，用于RISC-V内核平台[GD32V](https://github.com/sochub/GD32V)软件开发
 
 ### [OS-Q = Open Solutions | Open Source |  Operating System ](http://www.OS-Q.com/H4)
 ####  2019-9-8
