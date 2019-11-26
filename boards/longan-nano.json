@@ -75,7 +75,7 @@
         }
     },
     "frameworks": [
-        "gd32vfl",
+        "spl",
         "arduino"
     ],
     "name": "Longan Nano",

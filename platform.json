@@ -22,7 +22,7 @@
         "http://dl.platformio.org/packages/manifest.json"
     ],
     "frameworks": {
-        "gd32vfl": {
+        "spl": {
             "package": "framework-N6",
             "script": "builder/frameworks/gd32v.py"
         },
