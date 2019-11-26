@@ -4,7 +4,7 @@
     "description": "RISC-V GD32V开发平台",
     "url": "https://www.sipeed.com",
     "homepage": "https://www.OS-Q.com/H4",
-    "license": " ",
+    "license": "MIT",
     "engines": {
         "platformio": "<5"
     },
@@ -18,8 +18,9 @@
         "http://182.61.61.133/link/framework/manifest.json",
         "http://182.61.61.133/link/platformio.json",
         "http://182.61.61.133/link/platform.json",
-        "https://dl.bintray.com/platformio/dl-packages/manifest.json",
-        "http://dl.platformio.org/packages/manifest.json"
+        "http://dl.platformio.org/packages/manifest.json",
+        "https://dl.bintray.com/platformio/dl-packages/manifest.json"
+
     ],
     "frameworks": {
         "spl": {
@@ -37,7 +38,7 @@
             "type": "framework",
             "version": "https://github.com/OS-Q/N26.git"
         },
-        "framework-N7": {
+        "framework-N27": {
             "optional":true,
             "type": "framework",
             "version": "https://github.com/OS-Q/N27.git"
