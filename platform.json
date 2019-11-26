@@ -23,24 +23,24 @@
     ],
     "frameworks": {
         "spl": {
-            "package": "framework-N6",
+            "package": "framework-N26",
             "script": "builder/frameworks/gd32v.py"
         },
         "arduino": {
-            "package": "framework-N7",
+            "package": "framework-N27",
             "script": "builder/frameworks/arduino.py"
         }
     },
     "packages": {
-        "framework-N6": {
+        "framework-N26": {
             "optional": true,
             "type": "framework",
-            "version": "https://github.com/OS-Q/N6.git"
+            "version": "https://github.com/OS-Q/N26.git"
         },
         "framework-N7": {
             "optional":true,
             "type": "framework",
-            "version": "https://github.com/OS-Q/N7.git"
+            "version": "https://github.com/OS-Q/N27.git"
         },
         "tool-stm32duino": {
             "type": "uploader",
