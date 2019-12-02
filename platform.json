@@ -13,6 +13,11 @@
         "url": "https://github.com/OS-Q/H4.git"
     },
     "version": "1.0.0",
+    "authors": [{
+        "name": "Qitas",
+        "email": "support@Qitas.cn",
+        "url": "https://www.Qitas.com"
+    }],
     "packageRepositories": [
         "http://182.61.61.133/link/toolchain/manifest.json",
         "http://182.61.61.133/link/framework/manifest.json",
@@ -20,12 +25,11 @@
         "http://182.61.61.133/link/platform.json",
         "http://dl.platformio.org/packages/manifest.json",
         "https://dl.bintray.com/platformio/dl-packages/manifest.json"
-
     ],
     "frameworks": {
         "spl": {
             "package": "framework-N26",
-            "script": "builder/frameworks/gd32v.py"
+            "script": "builder/frameworks/firmware_library.py"
         },
         "arduino": {
             "package": "framework-N25",

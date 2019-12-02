@@ -8,7 +8,7 @@ board = env.BoardConfig()
 
 FRAMEWORK_DIR = env.PioPlatform().get_package_dir("framework-N25")
 assert FRAMEWORK_DIR and isdir(FRAMEWORK_DIR)
-SDK_DIR = join(FRAMEWORK_DIR, "cores", "arduino", "spl")
+SDK_DIR = join(FRAMEWORK_DIR, "cores", "arduino", "GD32VF103_Firmware_Library")
 
 env.SConscript("_bare.py", exports="env")
 

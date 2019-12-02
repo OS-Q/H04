@@ -10,14 +10,14 @@ platform = env.PioPlatform()
 board = env.BoardConfig()
 
 env.Replace(
-    AR="riscv64-unknown-elf-gcc-ar",
-    AS="riscv64-unknown-elf-as",
-    CC="riscv64-unknown-elf-gcc",
-    GDB="riscv64-unknown-elf-gdb",
-    CXX="riscv64-unknown-elf-g++",
-    OBJCOPY="riscv64-unknown-elf-objcopy",
-    RANLIB="riscv64-unknown-elf-gcc-ranlib",
-    SIZETOOL="riscv64-unknown-elf-size",
+    AR="riscv-nuclei-elf-gcc-ar",
+    AS="riscv-nuclei-elf-as",
+    CC="riscv-nuclei-elf-gcc",
+    GDB="riscv-nuclei-elf-gdb",
+    CXX="riscv-nuclei-elf-g++",
+    OBJCOPY="riscv-nuclei-elf-objcopy",
+    RANLIB="riscv-nuclei-elf-gcc-ranlib",
+    SIZETOOL="riscv-nuclei-elf-size",
 
     ARFLAGS=["rc"],
 
@@ -74,7 +74,7 @@ else:
 
 AlwaysBuild(env.Alias("nobuild", target_firm))
 target_buildprog = env.Alias("buildprog", target_firm, target_firm)
-#target_buildhex = env.Alias("buildhex", target_hex, target_hex)
+target_buildhex = env.Alias("buildhex", target_hex, target_hex)
 
 #
 # Target: Print binary size
@@ -114,20 +114,75 @@ if upload_protocol == "serial":
         env.VerboseAction("$UPLOADCMD", "Uploading $SOURCE")
     ]
 
+elif upload_protocol.startswith("rv-link"):
+    env.Replace(
+        UPLOADER="$GDB",
+        UPLOADERFLAGS=[
+            "-nx",
+            "--batch",
+            "-ex", "target extended-remote $UPLOAD_PORT",
+            "-ex", "monitor reset halt",
+            "-ex", "load",
+            "-ex", "monitor reset",
+            "-ex", "kill"
+        ],
+        UPLOADCMD="$UPLOADER $UPLOADERFLAGS $SOURCE"
+    )
+    upload_source = target_elf
+    upload_actions = [
+        env.VerboseAction(env.AutodetectUploadPort, "Looking for RV-Link port..."),
+        env.VerboseAction("$UPLOADCMD", "Uploading $SOURCE")
+    ]
+
+elif upload_protocol == "dfu":
+    hwids = board.get("build.hwids", [["0x0483", "0xDF11"]])
+    vid = hwids[0][0]
+    pid = hwids[0][1]
+    _upload_tool = "dfu-util"
+    _upload_flags = [
+        "-d", "%s:%s" % (vid.split('x')[1], pid.split('x')[1]),
+        "-a", "0", "--dfuse-address",
+        "%s:leave" % board.get("upload.offset_address", "0x08000000"), "-D"
+    ]
+    
+    upload_actions = [env.VerboseAction("$UPLOADCMD", "Uploading $SOURCE")]
+
+    # Add special DFU header to the binary image
+    env.AddPostAction(
+        join("$BUILD_DIR", "${PROGNAME}.bin"),
+        env.VerboseAction(
+            " ".join([
+                join(platform.get_package_dir("tool-gd32vflash") or "",
+                        "dfu-suffix"),
+                "-v %s" % vid,
+                "-p %s" % pid,
+                "-d 0xffff", "-a", "$TARGET"
+            ]), "Adding dfu suffix to ${PROGNAME}.bin"))
+
+    env.Replace(
+        UPLOADER = _upload_tool,
+        UPLOADERFLAGS = _upload_flags,
+        UPLOADCMD = '$UPLOADER $UPLOADERFLAGS "${SOURCE.get_abspath()}"'
+    )
+
+    upload_source = target_firm
 
 elif upload_protocol in debug_tools:
     openocd_args = [
-        "-c",
-        "debug_level %d" % (2 if int(ARGUMENTS.get("PIOVERBOSE", 0)) else 1),
-        "-s", platform.get_package_dir("tool-openocd-gd32v") or ""
+        #"-c",
+        #"debug_level %d" % (2 if int(ARGUMENTS.get("PIOVERBOSE", 0)) else 1),
+        #"-s", platform.get_package_dir("tool-openocd-gd32v") or ""
     ]
-    openocd_args.extend([ 
-        "-f",
-        "scripts/temp/openocd_%s.cfg" %("gdlink" if upload_protocol == "gd-link" else "jlink")  # .cfg in a temp path
-    ])
+    # openocd_args.extend([ 
+    #     "-f",
+    #     "scripts/temp/openocd_%s.cfg" %("gdlink" if upload_protocol == "gd-link" else "jlink")  # .cfg in a temp path
+    # ])
+    openocd_args.extend(
+        debug_tools.get(upload_protocol).get("server").get("arguments", [])
+    )
     openocd_args.extend([
-        "-c", "flash protect 0 0 last off; program {$SOURCE} %s verify; resume 0x20000000; exit;" %
-        board.get("upload").get("flash_start", "")
+        "-c", "init; halt;",
+        "-c", "flash protect 0 0 last off; program {$SOURCE} verify; mww 0xe004200c 0x4b5a6978; mww 0xe0042008 0x01; resume; exit 0;"
     ])
     env.Replace(
         UPLOADER="openocd",
@@ -150,4 +205,4 @@ AlwaysBuild(env.Alias("upload", upload_source, upload_actions))
 # Setup default targets
 #
 
-Default([target_buildprog, target_size])
+Default([target_buildprog, target_buildhex, target_size])

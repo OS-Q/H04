@@ -1,7 +1,7 @@
 /*!
-    \file  systick.c
-    \brief the systick configuration file
-
+    \file  main.h
+    \brief the header file of main 
+    
     \version 2019-6-5, V1.0.0, firmware for GD32VF103
 */
 
@@ -32,26 +32,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
-#include "gd32vf103.h"
-#include "systick.h"
+#ifndef __MAIN_H
+#define __MAIN_H
 
-/*!
-    \brief      delay a time in milliseconds
-    \param[in]  count: count in milliseconds
-    \param[out] none
-    \retval     none
-*/
-void delay_1ms(uint32_t count)
-{
-    uint64_t start_mtime, delta_mtime;
+/* led spark function */
+void led_spark(void);
 
-    // Don't start measuruing until we see an mtime tick
-    uint64_t tmp = get_timer_value();
-    do {
-    start_mtime = get_timer_value();
-    } while (start_mtime == tmp);
-
-    do {
-    delta_mtime = get_timer_value() - start_mtime;
-    }while(delta_mtime <(SystemCoreClock/4000.0 *count ));
-}
+#endif /* __MAIN_H */

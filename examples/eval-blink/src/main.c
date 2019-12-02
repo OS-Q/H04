@@ -1,7 +1,7 @@
 /*!
-    \file  systick.c
-    \brief the systick configuration file
-
+    \file  main.c
+    \brief running led
+    
     \version 2019-6-5, V1.0.0, firmware for GD32VF103
 */
 
@@ -33,25 +33,39 @@ OF SUCH DAMAGE.
 */
 
 #include "gd32vf103.h"
+#include "gd32v103v_eval.h"
 #include "systick.h"
+#include <stdio.h>
 
 /*!
-    \brief      delay a time in milliseconds
-    \param[in]  count: count in milliseconds
+    \brief      main function
+    \param[in]  none
     \param[out] none
     \retval     none
 */
-void delay_1ms(uint32_t count)
+int main(void)
 {
-    uint64_t start_mtime, delta_mtime;
+    gd_eval_led_init(LED1);
+    gd_eval_led_init(LED2);
+    gd_eval_led_init(LED3);
+    gd_eval_led_init(LED4);
 
-    // Don't start measuruing until we see an mtime tick
-    uint64_t tmp = get_timer_value();
-    do {
-    start_mtime = get_timer_value();
-    } while (start_mtime == tmp);
-
-    do {
-    delta_mtime = get_timer_value() - start_mtime;
-    }while(delta_mtime <(SystemCoreClock/4000.0 *count ));
+    while(1){
+        /* turn on led1, turn off led4 */
+        gd_eval_led_on(LED1);
+        gd_eval_led_off(LED4);
+        delay_1ms(1000);
+        /* turn on led2, turn off led1 */
+        gd_eval_led_on(LED2);
+        gd_eval_led_off(LED1);
+        delay_1ms(1000);
+        /* turn on led3, turn off led2 */
+        gd_eval_led_on(LED3);
+        gd_eval_led_off(LED2);
+        delay_1ms(1000);
+        /* turn on led4, turn off led3 */
+        gd_eval_led_on(LED4);
+        gd_eval_led_off(LED3);
+        delay_1ms(1000);
+    }
 }

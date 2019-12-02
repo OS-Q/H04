@@ -1,5 +1,4 @@
 .pioenvs
 .piolibdeps
-*.pyc
-.pio/
-.vscode/
+.pio
+
