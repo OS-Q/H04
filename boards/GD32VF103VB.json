@@ -20,7 +20,7 @@
         "spl",
         "arduino"
     ],
-    "name": "GD32VF103V-EVAL",
+    "name": "GD32VF103VB",
     "upload": {
         "maximum_ram_size": 32768,
         "maximum_size": 131072,

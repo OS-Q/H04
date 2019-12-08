@@ -23,7 +23,7 @@
         "spl",
         "arduino"
     ],
-    "name": "Sipeed Longan Nano Lite",
+    "name": "GD32VF103C8",
     "upload": {
         "maximum_ram_size": 20480,
         "maximum_size": 65536,
