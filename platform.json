@@ -1,23 +1,24 @@
 {
-    "name": "H4",
-    "title": "H4",
-    "description": "GD32V开发平台",
-    "url":  "https://www.gigadevice.com/products/microcontrollers/gd32/risc-v/",
-    "homepage": "https://www.OS-Q.com/H4",
+    "name": "H04",
+    "title": "H04",
+    "description": "H04: GigaDevice GD32V",
+    "url": "https://www.gigadevice.com/products/microcontrollers/gd32/risc-v/",
+    "homepage": "https://www.OS-Q.com/H04",
     "license": "MIT",
     "engines": {
         "platformio": "<5"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/OS-Q/H4.git"
+        "url": "https://github.com/OS-Q/H04.git"
     },
-    "version": "1.0.0",
     "authors": [{
-        "name": "Qitas",
-        "email": "support@Qitas.cn",
-        "url": "https://www.Qitas.com"
+        "name": "Sipeed",
+        "email": "support@sipeed.com",
+        "url": "https://www.sipeed.com"
     }],
+    "keywords": " OS-Q, risc-v, gd32v, sipeed, longan, arduino",
+    "version": "1.0.0",
     "packageRepositories": [
         "http://182.61.61.133/link/toolchain/manifest.json",
         "http://182.61.61.133/link/framework/manifest.json",
@@ -37,15 +38,15 @@
         }
     },
     "packages": {
-        "framework-N26": {
-            "optional": true,
-            "type": "framework",
-            "version": "https://github.com/OS-Q/N26.git"
-        },
         "framework-N25": {
-            "optional":true,
             "type": "framework",
+            "optional": true,
             "version": "https://github.com/OS-Q/N25.git"
+        },
+        "framework-N26": {
+            "type": "framework",
+            "optional": true,
+            "version": "https://github.com/OS-Q/N26.git"
         },
         "tool-openocd-gd32v": {
             "optional": true,
@@ -62,5 +63,4 @@
             "version": "~9.2.0"
         }
     }
-
 }
