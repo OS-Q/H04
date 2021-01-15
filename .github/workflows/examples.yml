@@ -1,0 +1,33 @@
+name: P06
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: [3.7]
+        example:
+          - "examples/arduino-blink"
+          - "examples/eval-blink"
+          - "examples/longan-nano-blink"
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: "recursive"
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -U https://github.com/OS-Q/S03/archive/master.zip
+          platformio platform install file://.
+      - name: Build P06
+        run: |
+          platformio run -d ${{ matrix.example }}

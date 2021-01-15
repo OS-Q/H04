@@ -1,11 +1,11 @@
 {
     "build": {
         "arduino": {
-            "ldscript": "GD32VF103xB.lds"
+            "ldscript": "GD32VF103x8.lds"
         },
         "f_cpu": "108000000L",
         "gd32vf103-sdk": {
-            "ldscript": "GD32VF103xB.lds"
+            "ldscript": "GD32VF103x8.lds"
         },
         "hwids": [
             [
@@ -16,9 +16,9 @@
         "mabi": "ilp32",
         "march": "rv32imac",
         "mcmodel": "medlow",
-        "mcu": "GD32VF103CBT6",
-        "variant": "wio_lite_risc-v",
-        "board_def": "BOARD_WIO_LITE_RISC-V",
+        "mcu": "GD32VF103C8T6",
+        "variant": "sipeed-longan-nano",
+        "board_def": "BOARD_SIPEED_LONGAN_NANO_LITE",
         "hxtal_value": "8000000"
     },
     "debug":{
@@ -28,12 +28,12 @@
         "gd32vf103-sdk",
         "arduino"
     ],
-    "name": "Wio Lite RISC-V",
+    "name": "Sipeed Longan Nano Lite",
     "upload": {
-        "maximum_ram_size": 32768,
-        "maximum_size": 131072,
+        "maximum_ram_size": 20480,
+        "maximum_size": 65536,
         "protocol": "serial"
     },
-    "url": "https://www.seeedstudio.com/Wio-Lite-RISC-V-GD32VF103-p-4293.html",
-    "vendor": "SeeedStudio"
+    "url": "https://www.sipeed.com/",
+    "vendor": "Sipeed"
 }

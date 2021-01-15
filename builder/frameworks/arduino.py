@@ -6,21 +6,20 @@ env = DefaultEnvironment()
 
 board = env.BoardConfig()
 
-FRAMEWORK_DIR = env.PioPlatform().get_package_dir("framework-N25")
+FRAMEWORK_DIR = env.PioPlatform().get_package_dir("framework-arduino-gd32v")
 assert FRAMEWORK_DIR and isdir(FRAMEWORK_DIR)
 SDK_DIR = join(FRAMEWORK_DIR, "cores", "arduino", "GD32VF103_Firmware_Library")
 
 env.SConscript("_bare.py", exports="env")
 
 env.Append(
-
-    CPPDEFINES = [
+    CPPDEFINES=[
         ("ARDUINO", 10805),
         ("ARDUINO_VARIANT", '\\"%s\\"' % env.BoardConfig().get("build.variant").replace('"', "")),
         ("ARDUINO_BOARD", '\\"%s\\"' % env.BoardConfig().get("build.board_def").replace('"', ""))
     ],
-    
-    CPPPATH = [
+
+    CPPPATH=[
         join(FRAMEWORK_DIR, "cores", "arduino"),
         join(FRAMEWORK_DIR, "cores", "arduino", "deprecated-avr-comp"),
         join(SDK_DIR, "GD32VF103_standard_peripheral"),
@@ -32,19 +31,18 @@ env.Append(
         join(SDK_DIR, "RISCV", "stubs"),
     ],
 
-    LIBS = [
+    LIBS=[
         "c"
     ],
 
     LIBSOURCE_DIRS=[
         join(FRAMEWORK_DIR, "libraries")
     ],
-
 )
 
-env.Replace(
-    LDSCRIPT_PATH = join(SDK_DIR, "RISCV", "env_Eclipse", board.get("build.ldscript")) 
-)
+if not env.BoardConfig().get("build.ldscript", ""):
+    env.Replace(LDSCRIPT_PATH=join(
+        SDK_DIR, "RISCV", "env_Eclipse", board.get("build.arduino.ldscript")))
 
 #
 # Target: Build Core Library
@@ -70,6 +68,7 @@ libs.append(envsafe.BuildLibrary(
     join("$BUILD_DIR", "FrameworkArduino"),
     join(FRAMEWORK_DIR, "cores", "arduino")
 ))
+
 
 
 env.Prepend(LIBS=libs)

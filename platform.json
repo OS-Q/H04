@@ -1,66 +1,81 @@
 {
-    "name": "H04",
-    "title": "H04",
-    "description": "H04: GigaDevice GD32V",
+    "name": "P06",
+    "title": "Platform P06",
+    "description": "GigaDevice GD32VF103",
     "url": "https://www.gigadevice.com/products/microcontrollers/gd32/risc-v/",
-    "homepage": "https://www.OS-Q.com/H04",
-    "license": "MIT",
+    "homepage": "https://www.OS-Q.com/P06",
+    "license": "Apache-2.0",
+    "keywords": [
+        "OS-Q",
+        "dev-platform",
+        "GigaDevice",
+        "GD32V",
+        "RISC-V",
+        "MCU",
+        "32bit"
+    ],
     "engines": {
-        "platformio": "<5"
+        "platformio": "^5"
     },
+    "version": "1.2.0",
     "repository": {
         "type": "git",
-        "url": "https://github.com/OS-Q/H04.git"
+        "url": "https://github.com/OS-Q/P06.git"
     },
-    "authors": [{
-        "name": "Sipeed",
-        "email": "support@sipeed.com",
-        "url": "https://www.sipeed.com"
-    }],
-    "keywords": " OS-Q, risc-v, gd32v, sipeed, longan, arduino",
-    "version": "1.0.0",
     "packageRepositories": [
         "http://182.61.61.133/link/toolchain/manifest.json",
+        "http://182.61.61.133/link/toolchain/openocd.json",
         "http://182.61.61.133/link/framework/manifest.json",
-        "http://182.61.61.133/link/platformio.json",
-        "http://182.61.61.133/link/platform.json",
-        "http://dl.platformio.org/packages/manifest.json",
-        "https://dl.bintray.com/platformio/dl-packages/manifest.json"
+        "http://182.61.61.133/link/platformio.json"
     ],
     "frameworks": {
-        "spl": {
-            "package": "framework-N26",
-            "script": "builder/frameworks/firmware_library.py"
+        "gd32vf103-sdk": {
+            "package": "framework-gd32vf103-sdk",
+            "script": "builder/frameworks/firmware_library.py",
+            "description": "GigaDevice GD32VF103 Firmware Library (SDK) is a firmware function package, including programs, data structures and macro definitions, all the performance features of peripherals of GD32VF103 devices are involved in the package",
+            "homepage": "https://github.com/riscv-mcu/GD32VF103_Firmware_Library",
+            "title": "GigaDevice GD32V SDK"
         },
         "arduino": {
-            "package": "framework-N25",
+            "package": "framework-arduino-gd32v",
             "script": "builder/frameworks/arduino.py"
         }
     },
     "packages": {
-        "framework-N25": {
-            "type": "framework",
+        "framework-gd32vf103-sdk": {
             "optional": true,
-            "version": "https://github.com/OS-Q/N25.git"
+            "type": "framework",
+            "owner": "platformio",
+            "version": "~1.0.0"
         },
-        "framework-N26": {
+        "framework-arduino-gd32v": {
+            "optional":true,
             "type": "framework",
-            "optional": true,
-            "version": "https://github.com/OS-Q/N26.git"
+            "owner": "platformio",
+            "version": "~0.1.1"
         },
         "tool-openocd-gd32v": {
             "optional": true,
             "type": "uploader",
+            "owner": "platformio",
             "version": "~0.1.1"
         },
         "tool-gd32vflash": {
             "type": "uploader",
             "optional": true,
+            "owner": "platformio",
             "version": "~0.1.0"
         },
         "toolchain-gd32v": {
             "type": "toolchain",
+            "owner": "platformio",
             "version": "~9.2.0"
+        },
+        "tool-dfuutil": {
+            "type": "uploader",
+            "optional": true,
+            "owner": "platformio",
+            "version": "~1.9.200310"
         }
     }
 }
