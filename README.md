@@ -1,9 +1,9 @@
-﻿# [P06](https://github.com/OS-Q/P06)
+﻿# [P08](https://github.com/OS-Q/P08)
 
-[![sites](http://182.61.61.133/link/resources/OSQ.png)](http://www.OS-Q.com)
+[![Build Status](https://github.com/OS-Q/P08/workflows/P08/badge.svg)](https://github.com/OS-Q/P08/actions)
 
-### [简介](https://github.com/OS-Q/P06/wiki)
+### [简介](https://github.com/OS-Q/P08/wiki)
 
-[P06](https://github.com/OS-Q/P06) 基于[PlatformIO](https://github.com/platformio/platformio-core) 框架。
+[P08](https://github.com/OS-Q/P08)基于[PlatformIO](https://github.com/platformio/platformio-core)开发框架，适用于[GD32V103](https://github.com/SoCXin/GD32V103) 芯片开发。
 
 ### [Q = (OpenSource & OperatingSystem) ](http://www.OS-Q.com)

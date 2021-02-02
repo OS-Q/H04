@@ -1,8 +1,8 @@
 {
-    "name": "P06",
-    "title": "Platform P06",
+    "name": "P08",
+    "title": "Platform P08",
     "description": "The GigaDevice GD32V device is a 32-bit general-purpose microcontroller based on the RISC-V core with an impressive balance of processing power, reduced power consumption and peripheral set.",
-    "homepage": "https://www.OS-Q.com/P06",
+    "homepage": "https://www.OS-Q.com/P08",
     "license": "Apache-2.0",
     "keywords": [
         "OS-Q",
@@ -19,7 +19,7 @@
     "version": "1.2.0",
     "repository": {
         "type": "git",
-        "url": "https://github.com/OS-Q/P06.git"
+        "url": "https://github.com/OS-Q/P08.git"
     },
     "packageRepositories": [
         "http://182.61.61.133/link/toolchain/manifest.json",
