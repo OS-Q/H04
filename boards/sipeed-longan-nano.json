@@ -4,7 +4,7 @@
             "ldscript": "GD32VF103xB.lds"
         },
         "f_cpu": "108000000L",
-        "gd32vf103-sdk": {
+        "native": {
             "ldscript": "GD32VF103xB.lds"
         },
         "hwids": [
@@ -25,7 +25,7 @@
         "svd_path": "GD32VF103.svd"
     },
     "frameworks": [
-        "gd32vf103-sdk",
+        "native",
         "arduino"
     ],
     "name": "Sipeed Longan Nano",

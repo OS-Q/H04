@@ -28,8 +28,8 @@
         "http://182.61.61.133/link/platformio.json"
     ],
     "frameworks": {
-        "gd32vf103-sdk": {
-            "package": "framework-gd32vf103-sdk",
+        "native": {
+            "package": "N08",
             "script": "builder/frameworks/firmware_library.py",
             "description": "GigaDevice GD32VF103 Firmware Library (SDK) is a firmware function package, including programs, data structures and macro definitions, all the performance features of peripherals of GD32VF103 devices are involved in the package",
             "homepage": "https://github.com/riscv-mcu/GD32VF103_Firmware_Library",
@@ -41,11 +41,10 @@
         }
     },
     "packages": {
-        "framework-gd32vf103-sdk": {
+        "N08": {
             "optional": true,
             "type": "framework",
-            "owner": "platformio",
-            "version": "~1.0.0"
+            "version": "https://github.com/OS-Q/N08.git"
         },
         "framework-arduino-gd32v": {
             "optional":true,
