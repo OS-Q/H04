@@ -31,7 +31,7 @@ env.Append(
 if not env.BoardConfig().get("build.ldscript", ""):
     env.Replace(
         LDSCRIPT_PATH=join(FRAMEWORK_DIR, "RISCV", "env_Eclipse", board.get(
-            "build.gd32vf103-sdk.ldscript"))
+            "build.native.ldscript"))
     )
 
 #

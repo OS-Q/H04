@@ -32,7 +32,13 @@
     "upload": {
         "maximum_ram_size": 32768,
         "maximum_size": 131072,
-        "protocol": "serial"
+        "protocol": "sipeed-rv-debugger",
+        "protocols": [
+            "jlink",
+            "gd-link",
+            "sipeed-rv-debugger",
+            "serial"
+        ]
     },
     "url": "https://www.sipeed.com/",
     "vendor": "Sipeed"
