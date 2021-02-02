@@ -36,6 +36,7 @@
         "protocols": [
             "jlink",
             "gd-link",
+            "rv-link",
             "sipeed-rv-debugger",
             "serial"
         ]
