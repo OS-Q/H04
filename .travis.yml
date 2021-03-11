@@ -7,7 +7,7 @@ env:
 
 install:
   - pip install -U https://github.com/OS-Q/S03/archive/master.zip
-  - pio platform install file://.
+  - qio platform install file://.
 
 script:
-  - pio run -d $PLATFORMIO_PROJECT_DIR
+  - qio run -d $PLATFORMIO_PROJECT_DIR

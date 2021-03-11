@@ -2,7 +2,6 @@
 
 [![sites](http://182.61.61.133/link/resources/OSQ.png)](http://www.OS-Q.com)
 
-[![Build Status](https://github.com/OS-Q/P26/workflows/macos/badge.svg)](https://github.com/OS-Q/P26/actions/workflows/macos.yml)
 [![Build Status](https://github.com/OS-Q/P26/workflows/ubuntu/badge.svg)](https://github.com/OS-Q/P26/actions/workflows/ubuntu.yml)
 [![Build Status](https://github.com/OS-Q/P26/workflows/windows/badge.svg)](https://github.com/OS-Q/P26/actions/workflows/windows.yml)
 [![Build Status](https://github.com/OS-Q/P26/workflows/PlatformIO/badge.svg)](https://github.com/OS-Q/P26/actions/workflows/platformio.yml)
@@ -13,4 +12,4 @@
 
 [P26](https://github.com/OS-Q/P26) 用于 [GD32V103](https://github.com/SoCXin/GD32V103) 开发
 
-### [Q = (OpenSource & OperatingSystem) ](http://www.OS-Q.com)
+### [源圈 OS-Q (Open Source & QA) ](http://www.OS-Q.com)
