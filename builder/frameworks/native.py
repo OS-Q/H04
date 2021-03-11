@@ -6,7 +6,7 @@ env = DefaultEnvironment()
 
 board = env.BoardConfig()
 
-FRAMEWORK_DIR = env.PioPlatform().get_package_dir("N08")
+FRAMEWORK_DIR = env.PioPlatform().get_package_dir("E26A")
 assert FRAMEWORK_DIR and isdir(FRAMEWORK_DIR)
 
 env.SConscript("_bare.py", exports="env")

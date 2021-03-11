@@ -1,6 +1,6 @@
 from platformio.managers.platform import PlatformBase
 
-class P08Platform(PlatformBase):
+class P26Platform(PlatformBase):
 
     def get_boards(self, id_=None):
         result = PlatformBase.get_boards(self, id_)
