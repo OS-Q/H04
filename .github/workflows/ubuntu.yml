@@ -20,9 +20,7 @@ jobs:
       matrix:
         python-version: [3.7]
         examples:
-          - "examples/arduino-blink"
-          - "examples/eval-blink"
-          - "examples/longan-nano-blink"
+          - "examples/blink"
 
     steps:
       - uses: actions/checkout@v2
@@ -46,5 +44,5 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: ubuntu-build-P51
+          name: ubuntu-build-P26
           path: ${{ matrix.examples }}/build

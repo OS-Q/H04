@@ -17,12 +17,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest]
         python-version: [3.7]
         example:
-          - "examples/arduino-blink"
-          - "examples/eval-blink"
-          - "examples/longan-nano-blink"
+          - "examples/blink"
 
     runs-on: ${{ matrix.os }}
     steps:
