@@ -447,17 +447,17 @@ jobs:
           submodules: "recursive"
           fetch-depth: 1
 
-      - name: Del folder
-        if: env.CHECK_TEMPLET
-        id: folder
-        run: |
-          rm -rf examples
+      # - name: Del folder
+      #   if: env.CHECK_TEMPLET
+      #   id: folder
+      #   run: |
+      #     rm -rf examples
 
-      - name: Del boards
-        if: env.CHECK_BOARDS
-        id: boards
-        run: |
-          rm -rf boards
+      # - name: Del boards
+      #   if: env.CHECK_BOARDS
+      #   id: boards
+      #   run: |
+      #     rm -rf boards
 
       - name: Checkout templete
         if: env.CHECK_TEMPLET
@@ -465,28 +465,28 @@ jobs:
         with:
           submodules: "recursive"
           fetch-depth: 1
-          repository: OS-Q/T${{ env.PLAT }}
+          repository: OS-Q/F${{ env.PLAT }}
           token: ${{ secrets.OSQ_REPO_TOKEN }}
           path: examples
 
-      - name: Checkout boards
-        if: env.CHECK_BOARDS
-        uses: actions/checkout@v2
-        with:
-          submodules: "recursive"
-          fetch-depth: 1
-          repository: OS-Q/B${{ env.PLAT }}
-          token: ${{ secrets.OSQ_REPO_TOKEN }}
-          path: boards
+      # - name: Checkout boards
+      #   if: env.CHECK_BOARDS
+      #   uses: actions/checkout@v2
+      #   with:
+      #     submodules: "recursive"
+      #     fetch-depth: 1
+      #     repository: OS-Q/B${{ env.PLAT }}
+      #     token: ${{ secrets.OSQ_REPO_TOKEN }}
+      #     path: boards
 
-      - name: Setup OSS
+      - name: Setup Folder
         uses: Qful/ossutil-action@master
         with:
           endpoint: ${{ secrets.OSS_ENDPOINT }}
           access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
           access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
 
-      - name: Upload OSS
+      - name: Upload Package
         id: OSS
         run: |
           ossutil cp ${{ secrets.OSS_P_Q_BUCKET }}P22.md .
