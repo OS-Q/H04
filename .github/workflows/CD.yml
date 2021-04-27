@@ -8,6 +8,8 @@ on:
 
 env:
   UPLOAD_BUILD: false
+  CHECK_TEMPLET: false
+  CHECK_BOARDS: false
   PLAT: "22"
 
 jobs:
@@ -85,7 +87,7 @@ jobs:
           name: build_${{ matrix.example }}
           path: examples/${{ matrix.example }}/.pio/build
 
-  build_example_end:
+  build_example_tail:
     needs:
       - example
     if: startsWith(github.ref, 'refs/tags/') && !success()
@@ -122,7 +124,7 @@ jobs:
   templete:
     needs:
       - example
-    if: success()
+    if: success() && env.CHECK_TEMPLET
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -159,10 +161,10 @@ jobs:
         run: |
           qio run -d .
 
-  build_templete_end:
+  build_templete_tail:
     needs:
       - templete
-    if: startsWith(github.ref, 'refs/tags/') && !success()
+    if: startsWith(github.ref, 'refs/tags/') && failure()
     runs-on: ubuntu-latest
     steps:
       - name: notification
@@ -179,7 +181,7 @@ jobs:
   release:
     needs:
       - templete
-    if: success()
+    if: startsWith(github.ref, 'refs/tags/') && !failure()
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -238,7 +240,7 @@ jobs:
             ${{ env.FIRMWARE }}/qio.zip
             ${{ env.FIRMWARE }}/pio.zip
 
-  release_end:
+  release_tail:
     needs:
       - release
     if: startsWith(github.ref, 'refs/tags/') && !success()
@@ -298,7 +300,7 @@ jobs:
         run: |
           qio run -d examples/arduino-blink
 
-  check_release_end:
+  check_release_tail:
     needs:
       - check_release
     if: startsWith(github.ref, 'refs/tags/') && !success()
@@ -406,7 +408,7 @@ jobs:
           topic: ${{github.repository}}/${{github.workflow}}
           message: "deploy package success"
 
-  check_deploy_end:
+  check_deploy_tail:
     needs:
       - check_deploy
     if: startsWith(github.ref, 'refs/tags/') && !success()
@@ -446,12 +448,20 @@ jobs:
           submodules: "recursive"
           fetch-depth: 1
 
-      - name: Folder
+      - name: Del folder
+        if: env.CHECK_TEMPLET
         id: folder
         run: |
-          rm -rf examples boards
+          rm -rf examples
+
+      - name: Del boards
+        if: env.CHECK_BOARDS
+        id: boards
+        run: |
+          rm -rf boards
 
       - name: Checkout templete
+        if: env.CHECK_TEMPLET
         uses: actions/checkout@v2
         with:
           submodules: "recursive"
@@ -461,6 +471,7 @@ jobs:
           path: examples
 
       - name: Checkout boards
+        if: env.CHECK_BOARDS
         uses: actions/checkout@v2
         with:
           submodules: "recursive"
@@ -481,8 +492,7 @@ jobs:
         run: |
           ossutil cp ${{ secrets.OSS_P_Q_BUCKET }}P22.md .
           echo ${GITHUB_REF/refs\/tags\//} >> P22.md
-
-          echo "Platform P22 for NRF52 BLE SoC" >> P22.txt
+          echo -e "Platform P22 for GD32V MCU" >> P22.txt
           echo ${GITHUB_REF/refs\/tags\//} >> P22.txt
           git log --stat -3 >> P22.txt
           rm -rf examples/.git*
@@ -561,7 +571,7 @@ jobs:
           attachments: P22.txt
           body: file://./P22.md
 
-  check_package_end:
+  check_package_tail:
     needs:
       - check_package
     if: startsWith(github.ref, 'refs/tags/') && !success()
