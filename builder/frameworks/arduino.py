@@ -6,7 +6,7 @@ env = DefaultEnvironment()
 
 board = env.BoardConfig()
 
-FRAMEWORK_DIR = env.PioPlatform().get_package_dir("A26A")
+FRAMEWORK_DIR = env.PioPlatform().get_package_dir("framework-arduino-gd32v")
 assert FRAMEWORK_DIR and isdir(FRAMEWORK_DIR)
 SDK_DIR = join(FRAMEWORK_DIR, "cores", "arduino", "GD32VF103_Firmware_Library")
 
@@ -54,7 +54,7 @@ if "build.variant" in env.BoardConfig():
     env.Append(
         CPPPATH=[
             join(FRAMEWORK_DIR, "variants",
-                env.BoardConfig().get("build.variant"))
+                 env.BoardConfig().get("build.variant"))
         ]
     )
     libs.append(env.BuildLibrary(

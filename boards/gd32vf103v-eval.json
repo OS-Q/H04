@@ -4,7 +4,7 @@
             "ldscript": "GD32VF103xB.lds"
         },
         "f_cpu": "108000000L",
-        "native": {
+        "gd32vf103-sdk": {
             "ldscript": "GD32VF103xB.lds"
         },
         "hwids": [
@@ -22,20 +22,14 @@
         "hxtal_value": "8000000"
     },
     "frameworks": [
-        "native",
+        "gd32vf103-sdk",
         "arduino"
     ],
     "name": "GD32VF103V-EVAL",
     "upload": {
         "maximum_ram_size": 32768,
         "maximum_size": 131072,
-        "protocol": "gd-link",
-        "protocols": [
-            "jlink",
-            "gd-link",
-            "sipeed-rv-debugger",
-            "serial"
-        ]
+        "protocol": "gd-link"
     },
     "url": "https://www.sipeed.com/",
     "vendor": "Sipeed"

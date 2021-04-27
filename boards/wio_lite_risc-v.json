@@ -4,7 +4,7 @@
             "ldscript": "GD32VF103xB.lds"
         },
         "f_cpu": "108000000L",
-        "native": {
+        "gd32vf103-sdk": {
             "ldscript": "GD32VF103xB.lds"
         },
         "hwids": [
@@ -25,7 +25,7 @@
         "svd_path": "GD32VF103.svd"
     },
     "frameworks": [
-        "native",
+        "gd32vf103-sdk",
         "arduino"
     ],
     "name": "Wio Lite RISC-V",

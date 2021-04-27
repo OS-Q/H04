@@ -1,49 +1,57 @@
 {
-    "name": "P26",
-    "title": "Platform P26",
+    "name": "P22",
+    "title": "Platform RISC-V GD32V",
+    "version": "1.2.1",
     "description": "The GigaDevice GD32V device is a 32-bit general-purpose microcontroller based on the RISC-V core with an impressive balance of processing power, reduced power consumption and peripheral set.",
-    "homepage": "https://www.OS-Q.com/P26",
-    "license": "Apache-2.0",
+    "homepage": "https://www.gigadevice.com/products/microcontrollers/gd32/risc-v/",
     "keywords": [
         "OS-Q",
         "dev-platform",
         "GigaDevice",
         "GD32V",
         "RISC-V",
-        "MCU",
+        "Sipeed",
+        "Longan",
         "32bit"
     ],
+    "license": "Apache-2.0",
     "engines": {
         "platformio": "^5"
     },
-    "version": "1.2.0",
     "repository": {
         "type": "git",
-        "url": "https://github.com/OS-Q/P26.git"
+        "url": "https://github.com/sipeed/platform-gd32v.git"
     },
+    "authors": [{
+        "name": "Sipeed",
+        "email": "support@sipeed.com",
+        "url": "https://www.sipeed.com"
+    }],
     "frameworks": {
-        "native": {
-            "package": "E26A",
-            "script": "builder/frameworks/native.py",
+        "gd32vf103-sdk": {
+            "package": "framework-gd32vf103-sdk",
+            "script": "builder/frameworks/firmware_library.py",
             "description": "GigaDevice GD32VF103 Firmware Library (SDK) is a firmware function package, including programs, data structures and macro definitions, all the performance features of peripherals of GD32VF103 devices are involved in the package",
             "homepage": "https://github.com/riscv-mcu/GD32VF103_Firmware_Library",
             "title": "GigaDevice GD32V SDK"
         },
         "arduino": {
-            "package": "A26A",
+            "package": "framework-arduino-gd32v",
             "script": "builder/frameworks/arduino.py"
         }
     },
     "packages": {
-        "E26A": {
+        "framework-gd32vf103-sdk": {
             "optional": true,
             "type": "framework",
-            "version": "https://github.com/OS-Q/E26A.git"
+            "owner": "platformio",
+            "version": "~1.0.0"
         },
-        "A26A": {
+        "framework-arduino-gd32v": {
             "optional":true,
             "type": "framework",
-            "version": "https://github.com/OS-Q/A26A.git"
+            "owner": "platformio",
+            "version": "~0.1.1"
         },
         "tool-openocd-gd32v": {
             "optional": true,
@@ -69,4 +77,5 @@
             "version": "~1.9.200310"
         }
     }
+
 }

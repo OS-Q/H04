@@ -6,7 +6,7 @@ env = DefaultEnvironment()
 
 board = env.BoardConfig()
 
-FRAMEWORK_DIR = env.PioPlatform().get_package_dir("E26A")
+FRAMEWORK_DIR = env.PioPlatform().get_package_dir("framework-gd32vf103-sdk")
 assert FRAMEWORK_DIR and isdir(FRAMEWORK_DIR)
 
 env.SConscript("_bare.py", exports="env")
@@ -31,7 +31,7 @@ env.Append(
 if not env.BoardConfig().get("build.ldscript", ""):
     env.Replace(
         LDSCRIPT_PATH=join(FRAMEWORK_DIR, "RISCV", "env_Eclipse", board.get(
-            "build.native.ldscript"))
+            "build.gd32vf103-sdk.ldscript"))
     )
 
 #
