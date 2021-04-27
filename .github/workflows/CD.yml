@@ -129,7 +129,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        template: ["A"]
+        template: ["A","B"]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -459,15 +459,30 @@ jobs:
       #   run: |
       #     rm -rf boards
 
-      - name: Checkout templete
+      - name: Checkout templete A
         if: env.CHECK_TEMPLET
         uses: actions/checkout@v2
         with:
           submodules: "recursive"
           fetch-depth: 1
-          repository: OS-Q/F${{ env.PLAT }}
+          repository: OS-Q/F${{ env.PLAT }}A
           token: ${{ secrets.OSQ_REPO_TOKEN }}
-          path: examples
+          path: examples/A
+
+      - name: Checkout templete B
+        if: env.CHECK_TEMPLET
+        uses: actions/checkout@v2
+        with:
+          submodules: "recursive"
+          fetch-depth: 1
+          repository: OS-Q/F${{ env.PLAT }}B
+          token: ${{ secrets.OSQ_REPO_TOKEN }}
+          path: examples/B
+
+      # - name: package templete
+      #   if: success()
+      #   run: |
+      #     rm -rf boards
 
       # - name: Checkout boards
       #   if: env.CHECK_BOARDS
