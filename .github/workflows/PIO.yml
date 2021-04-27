@@ -57,11 +57,11 @@ jobs:
       fail-fast: false
       matrix:
         example:
-          - "arduino-blink"
           - "eval-blink"
+          - "arduino-blink"
           - "longan-nano-blink"
 
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest]
 
     runs-on: ${{ matrix.os }}
     steps:
