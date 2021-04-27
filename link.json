@@ -2,7 +2,7 @@
     "name": "P22",
     "title": "Platform RISC-V GD32V",
     "version": "1.2.1",
-    "description": "The GigaDevice GD32V device is a 32-bit general-purpose microcontroller based on the RISC-V core with an impressive balance of processing power, reduced power consumption and peripheral set.",
+    "description": "GigaDevice GD32V 32-bit MCU based on the RISC-V core run 108MHz.",
     "homepage": "https://www.gigadevice.com/products/microcontrollers/gd32/risc-v/",
     "keywords": [
         "OS-Q",
@@ -20,30 +20,28 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/sipeed/platform-gd32v.git"
+        "url": "https://github.com/OS-Q/P22.git"
     },
     "frameworks": {
         "gd32vf103-sdk": {
-            "package": "framework-gd32vf103-sdk",
+            "package": "E22A",
             "script": "extend/frameworks/firmware_library.py"
         },
         "arduino": {
-            "package": "framework-arduino-gd32v",
+            "package": "A22",
             "script": "extend/frameworks/arduino.py"
         }
     },
     "packages": {
-        "framework-gd32vf103-sdk": {
+        "E22A": {
             "optional": true,
             "type": "framework",
-            "owner": "platformio",
-            "version": "~1.0.0"
+            "version": "https://github.com/OS-Q/E22A.git"
         },
-        "framework-arduino-gd32v": {
+        "A22": {
             "optional":true,
             "type": "framework",
-            "owner": "platformio",
-            "version": "~0.1.1"
+            "version": "https://github.com/OS-Q/A22.git"
         },
         "tool-openocd-gd32v": {
             "optional": true,
