@@ -7,11 +7,14 @@ on:
     paths:
       - 'boards/**'
       - 'misc/**'
+      - 'extend/**'
       - 'builder/**'
       - 'ldscripts/**'
       - 'examples/**'
       - 'platform.json'
       - 'platform.py'
+      - 'link.json'
+      - 'link.py'
 
 env:
   UPLOAD_BUILD: true
@@ -51,6 +54,65 @@ jobs:
       with:
         name: code_check_report
         path: codecheck.txt
+
+  QIO:
+    strategy:
+      fail-fast: false
+      matrix:
+        example:
+          - "eval-blink"
+          - "arduino-blink"
+          - "longan-nano-blink"
+
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: "recursive"
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+
+      - name: Install QIO
+        run: |
+          python -m pip install --upgrade pip
+          pip install -U https://github.com/OS-Q/M03/releases/latest/download/qio.zip
+          pio platform install file://.
+
+      - name: Build examples
+        id: build
+        if: success()
+        working-directory: examples
+        run: |
+          pio run -d ${{ matrix.example }}
+
+      - name: Upload
+        if: env.UPLOAD_BUILD
+        uses: actions/upload-artifact@v2
+        with:
+          name: qio_ci_build_${{ matrix.example }}_${{ matrix.os }}
+          path: examples/${{ matrix.example }}/.pio/build/
+
+  QIO_tail:
+    needs:
+      - QIO
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: notification
+        uses: Qful/mqtt-action@master
+        with:
+          protocol: mqtt
+          host: ${{secrets.MQTT_SERVER}}
+          port: 1883
+          username: ${{secrets.MQTT_USERNAME}}
+          password: ${{secrets.MQTT_PASSWORD}}
+          topic: ${{github.repository}}/${{github.workflow}}
+          message: "QIO CI failure"
 
   PIO:
     strategy:
@@ -93,10 +155,10 @@ jobs:
         if: env.UPLOAD_BUILD
         uses: actions/upload-artifact@v2
         with:
-          name: pio_${{ matrix.example }}_${{ matrix.os }}
+          name: pio_ci_build_${{ matrix.example }}_${{ matrix.os }}
           path: examples/${{ matrix.example }}/.pio/build
 
-  PIO_fail:
+  PIO_tail:
     needs:
       - PIO
     if: failure()
@@ -111,4 +173,4 @@ jobs:
           username: ${{secrets.MQTT_USERNAME}}
           password: ${{secrets.MQTT_PASSWORD}}
           topic: ${{github.repository}}/${{github.workflow}}
-          message: "PIO failure"
+          message: "PIO CI failure"

@@ -5,13 +5,14 @@ os:
   - linux
 git:
   depth: 1
+before_install: python -m pip install --upgrade pip
 env:
   - PLATFORMIO_PROJECT_DIR=examples/arduino-blink
   - PLATFORMIO_PROJECT_DIR=examples/eval-blink
   - PLATFORMIO_PROJECT_DIR=examples/longan-nano-blink
 
 install:
-  - pip install -U https://github.com/platformio/platformio/archive/develop.zip
+  - pip install -U https://github.com/OS-Q/M03/releases/latest/download/qio.zip
   - pio platform install file://.
 
 script:
