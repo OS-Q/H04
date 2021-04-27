@@ -2,7 +2,7 @@ import sys
 from os.path import join
 
 from SCons.Script import (ARGUMENTS, COMMAND_LINE_TARGETS, AlwaysBuild,
-                          Default, DefaultEnvironment)
+                            Default, DefaultEnvironment)
 
 
 env = DefaultEnvironment()
@@ -145,7 +145,7 @@ elif upload_protocol == "dfu":
         "-a", "0", "--dfuse-address",
         "%s:leave" % board.get("upload.offset_address", "0x08000000"), "-D"
     ]
-    
+
     upload_actions = [env.VerboseAction("$UPLOADCMD", "Uploading $SOURCE")]
 
     # Add special DFU header to the binary image
@@ -174,7 +174,7 @@ elif upload_protocol in debug_tools:
         #"debug_level %d" % (2 if int(ARGUMENTS.get("PIOVERBOSE", 0)) else 1),
         #"-s", platform.get_package_dir("tool-openocd-gd32v") or ""
     ]
-    # openocd_args.extend([ 
+    # openocd_args.extend([
     #     "-f",
     #     "scripts/temp/openocd_%s.cfg" %("gdlink" if upload_protocol == "gd-link" else "jlink")  # .cfg in a temp path
     # ])

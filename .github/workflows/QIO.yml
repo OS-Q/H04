@@ -1,18 +1,15 @@
-name: CI
+name: QIO
 
 on:
   push:
     branches:
-      - master
+      - qio
     paths:
       - 'boards/**'
       - 'misc/**'
       - 'extend/**'
-      - 'builder/**'
       - 'ldscripts/**'
       - 'examples/**'
-      - 'platform.json'
-      - 'platform.py'
       - 'link.json'
       - 'link.py'
 
@@ -94,7 +91,7 @@ jobs:
         if: env.UPLOAD_BUILD
         uses: actions/upload-artifact@v2
         with:
-          name: qio_ci_build_${{ matrix.example }}_${{ matrix.os }}
+          name: qio_${{ matrix.example }}_${{ matrix.os }}
           path: examples/${{ matrix.example }}/.pio/build/
 
   QIO_tail:
@@ -112,65 +109,4 @@ jobs:
           username: ${{secrets.MQTT_USERNAME}}
           password: ${{secrets.MQTT_PASSWORD}}
           topic: ${{github.repository}}/${{github.workflow}}
-          message: "QIO CI failure"
-
-  PIO:
-    strategy:
-      fail-fast: false
-      matrix:
-        example:
-          - "eval-blink"
-          - "arduino-blink"
-          - "longan-nano-blink"
-
-        os: [ubuntu-latest, windows-latest]
-
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: "recursive"
-          # fetch-depth: 1
-
-      - name: Set up Python
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.9
-
-      - name: Install PIO
-        run: |
-          python -m pip install --upgrade pip
-          pip install -U https://github.com/platformio/platformio/archive/develop.zip
-          pio platform install file://.
-
-      - name: Build examples
-        id: build
-        if: success()
-        working-directory: examples
-        run: |
-          pio run -d ${{ matrix.example }}
-          echo "::set-output name=status::success"
-
-      - name: Upload
-        if: env.UPLOAD_BUILD
-        uses: actions/upload-artifact@v2
-        with:
-          name: pio_ci_build_${{ matrix.example }}_${{ matrix.os }}
-          path: examples/${{ matrix.example }}/.pio/build
-
-  PIO_tail:
-    needs:
-      - PIO
-    if: failure()
-    runs-on: ubuntu-latest
-    steps:
-      - name: notification
-        uses: Qful/mqtt-action@master
-        with:
-          protocol: mqtt
-          host: ${{secrets.MQTT_SERVER}}
-          port: 1883
-          username: ${{secrets.MQTT_USERNAME}}
-          password: ${{secrets.MQTT_PASSWORD}}
-          topic: ${{github.repository}}/${{github.workflow}}
-          message: "PIO CI failure"
+          message: "QIO failure"
