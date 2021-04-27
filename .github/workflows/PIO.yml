@@ -96,7 +96,7 @@ jobs:
           name: pio_${{ matrix.example }}_${{ matrix.os }}
           path: examples/${{ matrix.example }}/.pio/build
 
-  PIO_fail:
+  PIO_tail:
     needs:
       - PIO
     if: failure()
