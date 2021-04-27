@@ -21,8 +21,7 @@ LICENSE*
 **/*/README*
 # C extensions
 *.so
-platform*
-builder/
+
 
 # Distribution / packaging
 .Python
