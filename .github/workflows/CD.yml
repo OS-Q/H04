@@ -124,13 +124,12 @@ jobs:
   templete:
     needs:
       - example
-    if: success() && env.CHECK_TEMPLET
+    if: success()
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
       matrix:
-        template: ["A","B"]
-
+        template: ["A"]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -151,7 +150,7 @@ jobs:
       - name: Checkout templete
         uses: actions/checkout@v2
         with:
-          repository: OS-Q/T${{ env.PLAT }}${{ matrix.template }}
+          repository: OS-Q/F${{ env.PLAT }}${{ matrix.template }}
           token: ${{ secrets.OSQ_REPO_TOKEN }}
           path: ${{ matrix.template }}
 
@@ -495,8 +494,6 @@ jobs:
           echo -e "Platform P22 for GD32V MCU" >> P22.txt
           echo ${GITHUB_REF/refs\/tags\//} >> P22.txt
           git log --stat -3 >> P22.txt
-          rm -rf examples/.git*
-          rm -rf boards/.git*
           zip -r P22.zip examples boards builder extend misc link.json link.py platform.json platform.py
           ossutil cp P22.zip ${{ secrets.OSS_P_Q_BUCKET }} -f
           ossutil cp P22.txt ${{ secrets.OSS_P_Q_BUCKET }} -f
@@ -562,7 +559,7 @@ jobs:
           server_port: 465
           username: ${{secrets.MAIL_USERNAME}}
           password: ${{secrets.MAIL_PASSWORD}}
-          subject: OS-Q P22 package released (ESP8266)
+          subject: OS-Q P22 released (GD32V)
           to: ${{secrets.MAIL_TO}}
           from: Qitas
           cc: ${{github.event.pusher.email}}
