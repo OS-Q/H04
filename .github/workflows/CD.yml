@@ -346,7 +346,7 @@ jobs:
           tag: ${{ github.ref }}
           file_glob: true
           body: "This is my release text"
-          file: all.zip
+          file: all.zip, qio.zip, pio.zip
 
             # qio.zip
             # pio.zip
