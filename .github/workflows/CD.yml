@@ -531,7 +531,7 @@ jobs:
   clean_tags:
     needs:
       - package_tail
-    if: startsWith(github.ref, 'refs/tags/') && skipped()
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
