@@ -207,8 +207,8 @@ jobs:
       fail-fast: true
       matrix:
         template: ["A","B"]
-        package: ["pio","qio"]
-        os: [ubuntu-latest, windows-latest]
+        package: ["qio"] # "pio",
+        os: [ubuntu-latest] #, windows-latest
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -245,24 +245,24 @@ jobs:
         if: success()
         working-directory: ${{ matrix.template }}
         run: |
-          qio run -d .
+          pio run -d .
 
-  templete_tail:
-    needs:
-      - templete
-    if: startsWith(github.ref, 'refs/tags/') && failure()
-    runs-on: ubuntu-latest
-    steps:
-      - name: notification
-        uses: Qful/mqtt-action@master
-        with:
-          protocol: mqtt
-          host: ${{secrets.MQTT_SERVER}}
-          port: 1883
-          username: ${{secrets.MQTT_USERNAME}}
-          password: ${{secrets.MQTT_PASSWORD}}
-          topic: ${{github.repository}}/${{github.workflow}}
-          message: "build templete fail"
+  # templete_tail:
+  #   needs:
+  #     - templete
+  #   if: startsWith(github.ref, 'refs/tags/') && failure()
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: notification
+  #       uses: Qful/mqtt-action@master
+  #       with:
+  #         protocol: mqtt
+  #         host: ${{secrets.MQTT_SERVER}}
+  #         port: 1883
+  #         username: ${{secrets.MQTT_USERNAME}}
+  #         password: ${{secrets.MQTT_PASSWORD}}
+  #         topic: ${{github.repository}}/${{github.workflow}}
+  #         message: "build templete fail"
 
   # release:
   #   needs:
