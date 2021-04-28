@@ -128,35 +128,35 @@ jobs:
       - name: package all
         if: matrix.package == 'all'
         run: |
-          mkdir ${{ matrix.package }}
-          cp -rf boards builder extend misc link.json link.py platform.json platform.py ${{ matrix.package }}
-          cp -f link.json link.py platform.json platform.py ${{ matrix.package }}
+          # mkdir ${{ matrix.package }}
+          # cp -rf boards builder extend misc link.json link.py platform.json platform.py ${{ matrix.package }}
+          # cp -f link.json link.py platform.json platform.py ${{ matrix.package }}
           # ls -a package
-          # zip -r package.zip boards builder extend misc link.json link.py platform.json platform.py
+          zip -r package.zip boards builder extend misc link.json link.py platform.json platform.py
 
       - name: package qio
         if: matrix.package == 'qio'
         run: |
-          mkdir ${{ matrix.package }}
-          cp -rf boards extend misc link.json link.py ${{ matrix.package }}
-          cp -f link.json link.py ${{ matrix.package }}
+          # mkdir ${{ matrix.package }}
+          # cp -rf boards extend misc link.json link.py ${{ matrix.package }}
+          # cp -f link.json link.py ${{ matrix.package }}
           # ls -a package
-          # zip -r package.zip boards builder extend misc link.json link.py
+          zip -r package.zip boards builder extend misc link.json link.py
 
       - name: package pio
         if: matrix.package == 'pio'
         run: |
-          mkdir ${{ matrix.package }}
-          cp -rf boards builder misc ${{ matrix.package }}
-          cp -f platform.json platform.py ${{ matrix.package }}
+          # mkdir ${{ matrix.package }}
+          # cp -rf boards builder misc ${{ matrix.package }}
+          # cp -f platform.json platform.py ${{ matrix.package }}
           # ls -a package
-          # zip -r package.zip boards builder misc platform.json platform.py
+          zip -r ${{ matrix.package }}.zip boards builder misc platform.json platform.py
 
       - name: Upload [GitHub Actions]
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ matrix.package }}
-          path: ${{ matrix.package }}/
+          name: ${{ env.JOB_TRANSFER_ARTIFACT }}
+          path: ${{ matrix.package }}.zip
 
       # - name: rm folder
       #   run: |
@@ -252,33 +252,73 @@ jobs:
           topic: ${{github.repository}}/${{github.workflow}}
           message: "build templete fail"
 
+  # release:
+  #   needs:
+  #     - upload
+  #   if: startsWith(github.ref, 'refs/tags/') && !failure()
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
+  #       with:
+  #         submodules: "recursive"
+  #         fetch-depth: 1
+
+  #     - name: Generate tag
+  #       id: tag
+  #       if: startsWith(github.ref, 'refs/tags/')
+  #       run: |
+  #         echo "::set-output name=release_tag::release_$(date +"%Y.%m.%d")_${GITHUB_REF/refs\/tags\//}"
+  #         echo "::set-output name=status::success"
+
+  #     - name: Package
+  #       id: package
+  #       run: |
+  #         zip -r all.zip boards builder extend misc link.json link.py platform.json platform.py
+  #         zip -r qio.zip boards extend misc link.json link.py
+  #         zip -r pio.zip boards builder misc platform.json platform.py
+  #         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+  #         echo "::set-output name=status::success"
+
+  #     - name: Release version
+  #       id: upload-release
+  #       uses: Qful/release-action@master
+  #       if: steps.tag.outputs.status == 'success' && !cancelled()
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.OSQ_REPO_TOKEN }}
+  #       with:
+  #         tag_name: ${{ steps.tag.outputs.release_tag }}
+  #         files: |
+  #           ${{ env.FIRMWARE }}/all.zip
+  #           ${{ env.FIRMWARE }}/qio.zip
+  #           ${{ env.FIRMWARE }}/pio.zip
+
   release:
     name: release ${{ matrix.artifact.name }}
-    needs: templete
-    if: startsWith(github.ref, 'refs/tags/') && success()
+    needs:
+      - upload
+    if: always() && needs.upload.result != 'skipped'
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        artifact:
-          - path: "all.zip"
-            name: all
-          - path: "pio.zip"
-            name: pio
-          - path: "qio.zip"
-            name: qio
-
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
-          name: ${{ matrix.artifact.name }}
-          path: ${{ matrix.artifact.name }}
+          name: ${{ env.JOB_TRANSFER_ARTIFACT }}
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v2
+      - name: Get Tag
+        id: tag_name
+        run: |
+          echo ::set-output name=TAG_NAME::${GITHUB_REF#refs/tags/}
+
+      - name: Publish Release [GitHub]
+        uses: svenstaro/upload-release-action@2.2.0
         with:
-          name: ${{ matrix.artifact.name }}
-          path: ${{ matrix.artifact.name }}/${{ matrix.artifact.path }}
+          repo_token: ${{ secrets.OSQ_REPO_TOKEN }}
+          release_name: ${{ steps.tag_name.outputs.TAG_NAME }}
+          file: ${{ env.JOB_TRANSFER_ARTIFACT }}/
+          tag: ${{ github.ref }}
+          file_glob: true
+          # body: ${{ needs.changelog.outputs.BODY }}
 
   check_release:
     needs:
