@@ -4,13 +4,11 @@ on:
   push:
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+*"
-      # - "[0-9]+.[0-9]+.[0-9]+*"
 
 env:
-  UPLOAD_BUILD: false
-  CHECK_TEMPLET: false
-  CHECK_BOARDS: false
-  PLAT: "22"
+  MONT: "M03"
+  PLAT: "P22"
+  TEMP: "F22"
 
 jobs:
   Lint_Code:
@@ -71,8 +69,7 @@ jobs:
 
       - name: Install
         run: |
-          python -m pip install --upgrade pip
-          pip install -U https://github.com/OS-Q/M03/releases/latest/download/qio.zip
+          pip install -U https://github.com/OS-Q/${{ env.MONT }}/releases/latest/download/qio.zip
           qio platform install file://.
 
       - name: build examples
@@ -80,12 +77,12 @@ jobs:
         run: |
           qio run -d ${{ matrix.example }}
 
-      - name: upload examples
-        if: env.UPLOAD_BUILD
-        uses: actions/upload-artifact@v2
-        with:
-          name: build_${{ matrix.example }}
-          path: examples/${{ matrix.example }}/.pio/build
+      # - name: upload examples
+      #   if: env.UPLOAD_BUILD
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: build_${{ matrix.example }}
+      #     path: examples/${{ matrix.example }}/.pio/build
 
   build_example_tail:
     needs:
@@ -143,14 +140,13 @@ jobs:
 
       - name: Install
         run: |
-          python -m pip install --upgrade pip
-          pip install -U https://github.com/OS-Q/M03/releases/latest/download/qio.zip
+          pip install -U https://github.com/OS-Q/${{ env.MONT }}/releases/latest/download/qio.zip
           qio platform install file://.
 
       - name: Checkout templete
         uses: actions/checkout@v2
         with:
-          repository: OS-Q/F${{ env.PLAT }}${{ matrix.template }}
+          repository: OS-Q/${{ env.TEMP }}${{ matrix.template }}
           token: ${{ secrets.OSQ_REPO_TOKEN }}
           path: ${{ matrix.template }}
 
@@ -205,26 +201,26 @@ jobs:
           echo "FIRMWARE=$PWD" >> $GITHUB_ENV
           echo "::set-output name=status::success"
 
-      - name: Upload package
-        if: env.UPLOAD_BUILD
-        uses: actions/upload-artifact@v2
-        with:
-          name:  ${{ steps.tag.outputs.release_tag }}_all
-          path: ${{ env.FIRMWARE }}/all.zip
+      # - name: Upload package
+      #   if: env.UPLOAD_BUILD
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name:  ${{ steps.tag.outputs.release_tag }}_all
+      #     path: ${{ env.FIRMWARE }}/all.zip
 
-      - name: Upload qio
-        if: env.UPLOAD_BUILD
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ steps.tag.outputs.release_tag }}_qio
-          path: ${{ env.FIRMWARE }}/qio.zip
+      # - name: Upload qio
+      #   if: env.UPLOAD_BUILD
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: ${{ steps.tag.outputs.release_tag }}_qio
+      #     path: ${{ env.FIRMWARE }}/qio.zip
 
-      - name: Upload pio
-        if: env.UPLOAD_BUILD
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ steps.tag.outputs.release_tag }}_pio
-          path: ${{ env.FIRMWARE }}/pio.zip
+      # - name: Upload pio
+      #   if: env.UPLOAD_BUILD
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: ${{ steps.tag.outputs.release_tag }}_pio
+      #     path: ${{ env.FIRMWARE }}/pio.zip
 
       - name: Release version
         id: upload-release
@@ -289,8 +285,8 @@ jobs:
         id: getgh
         run: |
           python -m pip install --upgrade pip
-          pip install -U https://github.com/OS-Q/M03/releases/latest/download/qio.zip
-          qio platform install https://github.com/OS-Q/P${{ env.PLAT }}/releases/latest/download/all.zip
+          pip install -U https://github.com/OS-Q/${{ env.MONT }}/releases/latest/download/qio.zip
+          qio platform install https://github.com/OS-Q/${{ env.PLAT }}/releases/latest/download/all.zip
           echo "::set-output name=status::success"
 
       - name: Build
@@ -350,8 +346,8 @@ jobs:
       - name: upload package
         id: OSS
         run: |
-          zip -r P22.zip boards builder extend misc link.json link.py platform.json platform.py
-          ossutil cp P22.zip ${{ secrets.OSS_P_BUCKET }} -f
+          zip -r ${{ env.PLAT }}.zip boards builder extend misc link.json link.py platform.json platform.py
+          ossutil cp ${{ env.PLAT }}.zip ${{ secrets.OSS_P_BUCKET }} -f
 
       - name: notification
         uses: Qful/mqtt-action@master
@@ -385,16 +381,16 @@ jobs:
       - name: download package
         id: download
         run: |
-          ossutil cp ${{ secrets.OSS_P_BUCKET }}P22.zip .
-          ls -a P22.zip
+          ossutil cp ${{ secrets.OSS_P_BUCKET }}${{ env.PLAT }}.zip .
+          # ls -a ${{ env.PLAT }}.zip
           echo "::set-output name=status::success"
 
       - name: Install package
         if: steps.download.outputs.status == 'success' && !cancelled()
         run: |
           python -m pip install --upgrade pip
-          pip install -U https://github.com/OS-Q/M03/releases/latest/download/qio.zip
-          qio platform install file://./P22.zip
+          pip install -U https://github.com/OS-Q/${{ env.MONT }}/releases/latest/download/qio.zip
+          qio platform install file://./${{ env.PLAT }}.zip
 
       - name: notification
         uses: Qful/mqtt-action@master
@@ -447,52 +443,24 @@ jobs:
           submodules: "recursive"
           fetch-depth: 1
 
-      # - name: Del folder
-      #   if: env.CHECK_TEMPLET
-      #   id: folder
-      #   run: |
-      #     rm -rf examples
-
-      # - name: Del boards
-      #   if: env.CHECK_BOARDS
-      #   id: boards
-      #   run: |
-      #     rm -rf boards
 
       - name: Checkout templete A
-        if: env.CHECK_TEMPLET
         uses: actions/checkout@v2
         with:
           submodules: "recursive"
           fetch-depth: 1
-          repository: OS-Q/F${{ env.PLAT }}A
+          repository: OS-Q/${{ env.TEMP }}A
           token: ${{ secrets.OSQ_REPO_TOKEN }}
-          path: examples/A
+          path: examples/lcd
 
       - name: Checkout templete B
-        if: env.CHECK_TEMPLET
         uses: actions/checkout@v2
         with:
           submodules: "recursive"
           fetch-depth: 1
-          repository: OS-Q/F${{ env.PLAT }}B
+          repository: OS-Q/${{ env.TEMP }}B
           token: ${{ secrets.OSQ_REPO_TOKEN }}
-          path: examples/B
-
-      # - name: package templete
-      #   if: success()
-      #   run: |
-      #     rm -rf boards
-
-      # - name: Checkout boards
-      #   if: env.CHECK_BOARDS
-      #   uses: actions/checkout@v2
-      #   with:
-      #     submodules: "recursive"
-      #     fetch-depth: 1
-      #     repository: OS-Q/B${{ env.PLAT }}
-      #     token: ${{ secrets.OSQ_REPO_TOKEN }}
-      #     path: boards
+          path: examples/rvlink
 
       - name: Setup Folder
         uses: Qful/ossutil-action@master
@@ -504,15 +472,15 @@ jobs:
       - name: Upload Package
         id: OSS
         run: |
-          ossutil cp ${{ secrets.OSS_P_Q_BUCKET }}P22.md .
-          echo ${GITHUB_REF/refs\/tags\//} >> P22.md
-          echo -e "Platform P22 for GD32V MCU" >> P22.txt
-          echo ${GITHUB_REF/refs\/tags\//} >> P22.txt
-          git log --stat -3 >> P22.txt
-          zip -r P22.zip examples boards builder extend misc link.json link.py platform.json platform.py
-          ossutil cp P22.zip ${{ secrets.OSS_P_Q_BUCKET }} -f
-          ossutil cp P22.txt ${{ secrets.OSS_P_Q_BUCKET }} -f
-          ossutil cp P22.md ${{ secrets.OSS_P_Q_BUCKET }} -f
+          ossutil cp ${{ secrets.OSS_P_Q_BUCKET }}${{ env.PLAT }}.md .
+          echo ${GITHUB_REF/refs\/tags\//} >> ${{ env.PLAT }}.md
+          echo -e "Platform ${{ env.PLAT }} for GD32V MCU" >> ${{ env.PLAT }}.txt
+          echo ${GITHUB_REF/refs\/tags\//} >> ${{ env.PLAT }}.txt
+          git log --stat -3 >> ${{ env.PLAT }}.txt
+          zip -r ${{ env.PLAT }}.zip examples boards builder extend misc link.json link.py platform.json platform.py
+          ossutil cp ${{ env.PLAT }}.zip ${{ secrets.OSS_P_Q_BUCKET }} -f
+          ossutil cp ${{ env.PLAT }}.txt ${{ secrets.OSS_P_Q_BUCKET }} -f
+          ossutil cp ${{ env.PLAT }}.md ${{ secrets.OSS_P_Q_BUCKET }} -f
           echo "::set-output name=status::success"
 
       - name: notification
@@ -547,24 +515,24 @@ jobs:
       - name: download package
         id: download
         run: |
-          ossutil cp ${{ secrets.OSS_P_Q_BUCKET }}P22.zip .
-          ossutil cp ${{ secrets.OSS_P_Q_BUCKET }}P22.txt .
-          ossutil cp ${{ secrets.OSS_P_Q_BUCKET }}P22.md .
+          ossutil cp ${{ secrets.OSS_P_Q_BUCKET }}${{ env.PLAT }}.zip .
+          ossutil cp ${{ secrets.OSS_P_Q_BUCKET }}${{ env.PLAT }}.txt .
+          ossutil cp ${{ secrets.OSS_P_Q_BUCKET }}${{ env.PLAT }}.md .
           echo "::set-output name=status::success"
 
       - name: Install package
         if: steps.download.outputs.status == 'success' && !cancelled()
         run: |
           python -m pip install --upgrade pip
-          pip install -U https://github.com/OS-Q/M03/releases/latest/download/qio.zip
-          qio platform install file://./P22.zip
+          pip install -U https://github.com/OS-Q/${{ env.MONT }}/releases/latest/download/qio.zip
+          qio platform install file://./${{ env.PLAT }}.zip
 
-      - name: Build
-        id: build
-        if: success()
-        run: |
-          unzip P22.zip
-          qio run -d examples/A
+      # - name: Build
+      #   id: build
+      #   if: success()
+      #   run: |
+      #     unzip ${{ env.PLAT }}.zip
+      #     qio run -d examples/A
 
       - name: Send Mail
         if: success()
@@ -574,14 +542,14 @@ jobs:
           server_port: 465
           username: ${{secrets.MAIL_USERNAME}}
           password: ${{secrets.MAIL_PASSWORD}}
-          subject: OS-Q P22 released (GD32V)
+          subject: OS-Q ${{ env.PLAT }} released (GD32V)
           to: ${{secrets.MAIL_TO}}
           from: Qitas
           cc: ${{github.event.pusher.email}}
           content_type: text/html
           convert_markdown: true
-          attachments: P22.txt
-          body: file://./P22.md
+          attachments: ${{ env.PLAT }}.txt
+          body: file://./${{ env.PLAT }}.md
 
   check_package_tail:
     needs:
