@@ -476,6 +476,13 @@ jobs:
           pip install -U https://github.com/OS-Q/${{ env.MONT }}/releases/latest/download/qio.zip
           qio platform install file://./${{ env.PLAT }}.zip
 
+
+      - name: get message
+        id: message
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+
       - name: Send Mail
         if: success()
         uses: Qful/mail-action@master
@@ -484,7 +491,7 @@ jobs:
           server_port: 465
           username: ${{secrets.MAIL_USERNAME}}
           password: ${{secrets.MAIL_PASSWORD}}
-          subject: ${{ env.TOPIC }} ${{ env.PLAT }} released ${{GITHUB_REF/refs\/tags\//}}
+          subject: ${{ env.TOPIC }} ${{ env.PLAT }} released ${{ env.VERSION }}
           to: ${{secrets.MAIL_TO}}
           from: Qitas
           cc: ${{github.event.pusher.email}}
