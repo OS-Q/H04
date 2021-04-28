@@ -203,11 +203,13 @@ jobs:
     needs:
       - example
     if: success()
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: true
       matrix:
         template: ["A","B"]
+        package: ["pio","qio"]
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -219,10 +221,18 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: Install
+
+      - name: Install qio
+        if: matrix.package == 'qio'
         run: |
           pip install -U https://github.com/OS-Q/${{ env.MONT }}/releases/latest/download/qio.zip
           qio platform install file://.
+
+      - name: Install pio
+        if: matrix.package == 'pio'
+        run: |
+          pip install -U https://github.com/platformio/platformio/archive/develop.zip
+          pio platform install file://.
 
       - name: Checkout templete
         uses: actions/checkout@v2
@@ -314,9 +324,12 @@ jobs:
 
       - name: package src
         run: |
-          zip -rf all.zip boards builder extend misc link.json link.py platform.json platform.py
-          zip -rf qio.zip boards builder extend misc link.json link.py
-          zip -rf pio.zip boards builder misc platform.json platform.py
+          zip -r all.zip boards builder extend misc link.json link.py platform.json platform.py
+          zip -r qio.zip boards extend misc link.json link.py
+          zip -r pio.zip boards builder misc platform.json platform.py
+          # zip -rf all.zip boards builder extend misc link.json link.py platform.json platform.py
+          # zip -rf qio.zip boards builder extend misc link.json link.py
+          # zip -rf pio.zip boards builder misc platform.json platform.py
           mkdir package
           mv *.zip package/
 
