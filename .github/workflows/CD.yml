@@ -330,8 +330,8 @@ jobs:
           # zip -rf all.zip boards builder extend misc link.json link.py platform.json platform.py
           # zip -rf qio.zip boards builder extend misc link.json link.py
           # zip -rf pio.zip boards builder misc platform.json platform.py
-          mkdir package
-          mv *.zip package/
+          # mkdir package
+          # mv *.zip package/
 
       - name: Get Tag
         id: tag_name
@@ -343,10 +343,13 @@ jobs:
         with:
           repo_token: ${{ secrets.OSQ_REPO_TOKEN }}
           release_name: ${{ steps.tag_name.outputs.TAG_NAME }}
-          file: all.zip
           tag: ${{ github.ref }}
           file_glob: true
           body: "This is my release text"
+          file: |
+            all.zip
+            qio.zip
+            pio.zip
 
   check_release:
     needs:
