@@ -9,7 +9,7 @@ env:
   MONT: "M03"
   PLAT: "P22"
   TEMP: "F22"
-  TOPIC: "GD32VF103"
+  TOPIC: "GD32V Platform"
 
 jobs:
   Lint_Code:
@@ -298,7 +298,7 @@ jobs:
       #   id: OSS
       #   run: |
       #     zip -r ${{ env.PLAT }}.zip boards builder extend misc link.json link.py platform.json platform.py
-      #     ossutil cp ${{ env.PLAT }}.zip ${{ secrets.OSS_P_BUCKET }} -f
+      #     ossutil cp ${{ env.PLAT }}.zip ${{ secrets.OSS_BUCKET_P }} -f
 
       - name: notification
         uses: Qful/mqtt-action@master
@@ -332,7 +332,7 @@ jobs:
       # - name: download package
       #   id: download
       #   run: |
-      #     ossutil cp ${{ secrets.OSS_P_BUCKET }}${{ env.PLAT }}.zip .
+      #     ossutil cp ${{ secrets.OSS_BUCKET_P }}${{ env.PLAT }}.zip .
       #     # ls -a ${{ env.PLAT }}.zip
       #     echo "::set-output name=status::success"
 
@@ -428,7 +428,7 @@ jobs:
           echo ${GITHUB_REF/refs\/tags\//} >> ${{ env.PLAT }}.txt
           git log --stat -3 >> ${{ env.PLAT }}.txt
           zip -r ${{ env.PLAT }}.zip examples boards builder extend misc link.json link.py platform.json platform.py
-          ossutil cp ${{ env.PLAT }}.zip ${{ secrets.OSS_P_BUCKET }} -f
+          ossutil cp ${{ env.PLAT }}.zip ${{ secrets.OSS_BUCKET_P }} -f
           ossutil cp ${{ env.PLAT }}.txt ${{ secrets.OSS_MAIL_INFO }} -f
           echo "::set-output name=status::success"
 
@@ -464,7 +464,7 @@ jobs:
       - name: download package
         id: download
         run: |
-          ossutil cp ${{ secrets.OSS_P_BUCKET }}${{ env.PLAT }}.zip .
+          ossutil cp ${{ secrets.OSS_BUCKET_P }}${{ env.PLAT }}.zip .
           ossutil cp ${{ secrets.OSS_MAIL_INFO }}${{ env.PLAT }}.txt .
           ossutil cp ${{ secrets.OSS_MAIL_INFO }}${{ env.PLAT }}.md .
           echo "::set-output name=status::success"
@@ -484,7 +484,7 @@ jobs:
           server_port: 465
           username: ${{secrets.MAIL_USERNAME}}
           password: ${{secrets.MAIL_PASSWORD}}
-          subject: OS-Q ${{ env.PLAT }}-${{ env.TOPIC }} released ${GITHUB_REF/refs\/tags\//}
+          subject: ${{ env.TOPIC }} ${{ env.PLAT }} released ${{GITHUB_REF/refs\/tags\//}}
           to: ${{secrets.MAIL_TO}}
           from: Qitas
           cc: ${{github.event.pusher.email}}
@@ -524,7 +524,7 @@ jobs:
   clean_tags:
     needs:
       - package_tail
-    if: startsWith(github.ref, 'refs/tags/') && cancelled()
+    if: startsWith(github.ref, 'refs/tags/') && skipped()
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
