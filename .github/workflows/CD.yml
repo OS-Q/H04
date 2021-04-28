@@ -11,6 +11,7 @@ env:
   TEMP: "F22"
   TOPIC: "GD32V Platform"
   LASTV: "v0.0.2"
+  JOB_TRANSFER_ARTIFACT: build-artifacts
 
 jobs:
   Lint_Code:
@@ -57,6 +58,10 @@ jobs:
           - "eval-blink"
           - "arduino-blink"
           - "longan-nano-blink"
+        package:
+          - "all"
+          - "qio"
+          - "pio"
 
     steps:
       - uses: actions/checkout@v2
@@ -69,22 +74,85 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: Install
+      - name: Install all
+        if: matrix.package == 'all'
         run: |
           pip install -U https://github.com/OS-Q/${{ env.MONT }}/releases/latest/download/qio.zip
           qio platform install file://.
 
+      - name: Install qio
+        if: matrix.package == 'qio'
+        run: |
+          pip install -U https://github.com/OS-Q/${{ env.MONT }}/releases/latest/download/qio.zip
+          # qio platform install https://github.com/OS-Q/${{ env.PLAT }}/releases/latest/download/qio.zip
+          qio platform install file://.
+
+      - name: Install pio
+        if: matrix.package == 'pio'
+        run: |
+          pip install -U https://github.com/platformio/platformio/archive/develop.zip
+          # pio platform install https://github.com/OS-Q/${{ env.PLAT }}/archive/pio.zip
+          pio platform install file://.
+
       - name: build examples
         working-directory: examples
         run: |
-          qio run -d ${{ matrix.example }}
+          pio run -d ${{ matrix.example }}
 
-      # - name: upload examples
+      # - name: upload package
       #   if: env.UPLOAD_BUILD
       #   uses: actions/upload-artifact@v2
       #   with:
       #     name: build_${{ matrix.example }}
       #     path: examples/${{ matrix.example }}/.pio/build
+
+  upload_package:
+    needs:
+      - example
+    if: startsWith(github.ref, 'refs/tags/') && success()
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - "all"
+          - "qio"
+          - "pio"
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: "recursive"
+          fetch-depth: 1
+
+      - name: Install all
+        if: matrix.package == 'all'
+        run: |
+          mkdir package
+          cp -rf boards builder extend misc link.json link.py platform.json platform.py package
+          # zip -r all.zip boards builder extend misc link.json link.py platform.json platform.py
+
+      - name: Install qio
+        if: matrix.package == 'qio'
+        run: |
+          mkdir package
+          cp -rf boards extend misc link.json link.py package
+
+      - name: Install pio
+        if: matrix.package == 'pio'
+        run: |
+          mkdir package
+          cp -rf boards builder misc platform.json platform.py package
+
+      - name: Upload [GitHub Actions]
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.JOB_TRANSFER_ARTIFACT }}
+          path: package/
+
+      - name: rm folder
+        run: |
+          rm -rf package
 
   example_tail:
     needs:
@@ -176,57 +244,96 @@ jobs:
           message: "build templete fail"
 
   release:
-    needs:
-      - templete
-    if: startsWith(github.ref, 'refs/tags/') && !failure()
+    name: release ${{ matrix.artifact.name }}
+    needs: templete
+    if: startsWith(github.ref, 'refs/tags/') && success()
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        artifact:
+          - path: "all.zip"
+            name: all
+          - path: "pio.zip"
+            name: pio
+          - path: "qio.zip"
+            name: qio
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - name: Download artifact
+        uses: actions/download-artifact@v2
         with:
-          submodules: "recursive"
-          fetch-depth: 1
+          name: ${{ env.JOB_TRANSFER_ARTIFACT }}
+          path: ${{ env.JOB_TRANSFER_ARTIFACT }}
 
-      - name: Generate tag
-        id: tag
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          echo "::set-output name=release_tag::release_$(date +"%Y.%m.%d")_${GITHUB_REF/refs\/tags\//}"
-          echo "::set-output name=status::success"
-
-      - name: Package
-        id: package
-        run: |
-          zip -r all.zip boards builder extend misc link.json link.py platform.json platform.py
-          zip -r qio.zip boards extend misc link.json link.py
-          zip -r pio.zip boards builder misc platform.json platform.py
-          echo "FIRMWARE=$PWD" >> $GITHUB_ENV
-          echo "::set-output name=status::success"
-
-      - name: Release version
-        id: upload-release
-        uses: Qful/release-action@master
-        if: steps.tag.outputs.status == 'success' && !cancelled()
-        env:
-          GITHUB_TOKEN: ${{ secrets.OSQ_REPO_TOKEN }}
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v2
         with:
-          tag_name: ${{ steps.tag.outputs.release_tag }}
-          files: |
-            ${{ env.FIRMWARE }}/all.zip
-            ${{ env.FIRMWARE }}/qio.zip
-            ${{ env.FIRMWARE }}/pio.zip
+          name: ${{ matrix.artifact.name }}
+          path: ${{ env.JOB_TRANSFER_ARTIFACT }}/${{ matrix.artifact.path }}
 
   check_release:
     needs:
       - release
     if: success()
     runs-on: ubuntu-latest
-
+    outputs:
+      BODY: ${{ steps.check_release.outputs.BODY }}
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
-          submodules: "recursive"
-          fetch-depth: 1
+          fetch-depth: 0 # To fetch all history for all branches and tags.
+
+      - name: Generate Changelog
+        id: changelog
+        env:
+          IS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/') }}
+        run: |
+            export LATEST_TAG=$(git describe --abbrev=0)
+            export GIT_LOG=$(git log --pretty=" - %s [%h]" $LATEST_TAG..HEAD | sed 's/ *$//g')
+            if [ "$IS_RELEASE" = true ]; then
+              export BODY=$(echo -e "$GIT_LOG")
+            else
+              export LATEST_TAG_WITH_LINK=$(echo "[$LATEST_TAG](https://github.com/arduino/arduino-ide/releases/tag/$LATEST_TAG)")
+              if [ -z "$GIT_LOG" ]; then
+                  export BODY="There were no changes since version $LATEST_TAG_WITH_LINK."
+              else
+                  export BODY=$(echo -e "Changes since version $LATEST_TAG_WITH_LINK:\n$GIT_LOG")
+              fi
+            fi
+            echo -e "$BODY"
+            OUTPUT_SAFE_BODY="${BODY//'%'/'%25'}"
+            OUTPUT_SAFE_BODY="${OUTPUT_SAFE_BODY//$'\n'/'%0A'}"
+            OUTPUT_SAFE_BODY="${OUTPUT_SAFE_BODY//$'\r'/'%0D'}"
+            echo "::set-output name=BODY::$OUTPUT_SAFE_BODY"
+            echo "$BODY" > CHANGELOG.txt
+
+      - name: Upload Changelog [GitHub Actions]
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.JOB_TRANSFER_ARTIFACT }}
+          path: CHANGELOG.txt
+
+      - name: Download [GitHub Actions]
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ env.JOB_TRANSFER_ARTIFACT }}
+          path: ${{ env.JOB_TRANSFER_ARTIFACT }}
+
+      - name: Get Tag
+        id: tag_name
+        run: |
+          echo ::set-output name=TAG_NAME::${GITHUB_REF#refs/tags/}
+
+      - name: Publish Release [GitHub]
+        uses: svenstaro/upload-release-action@2.2.0
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          release_name: ${{ steps.tag_name.outputs.TAG_NAME }}
+          file: ${{ env.JOB_TRANSFER_ARTIFACT }}/*
+          tag: ${{ github.ref }}
+          file_glob: true
+          body: ${{ needs.check_release.outputs.BODY }}
 
       - name: Set up Python
         uses: actions/setup-python@v1
@@ -239,13 +346,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -U https://github.com/OS-Q/${{ env.MONT }}/releases/latest/download/qio.zip
           qio platform install https://github.com/OS-Q/${{ env.PLAT }}/releases/latest/download/all.zip
+          qio platform install https://github.com/OS-Q/${{ env.PLAT }}/releases/latest/download/qio.zip
+          pip install -U https://github.com/platformio/platformio/archive/develop.zip
+          pio platform install https://github.com/OS-Q/${{ env.PLAT }}/releases/latest/download/pio.zip
           echo "::set-output name=status::success"
 
-      - name: Build
-        id: build
-        if: steps.getgh.outputs.status == 'success' && !cancelled()
-        run: |
-          qio run -d examples/arduino-blink
+      # - name: Build
+      #   id: build
+      #   if: steps.getgh.outputs.status == 'success' && !cancelled()
+      #   run: |
+      #     qio run -d examples/arduino-blink
 
   release_tail:
     needs:
@@ -479,6 +589,7 @@ jobs:
           echo -e "${{ env.TOPIC }} ${{ env.PLAT }}" >> ${{ env.PLAT }}.txt
           echo -e "$(date +"%Y.%m.%d") ${GITHUB_REF/refs\/tags\//}" >> ${{ env.PLAT }}.txt
           export LATEST_TAG=$(git describe --abbrev=0)
+          echo LATEST_TAG
           export GIT_LOG=$(git log --pretty=" - %s [%h]" $LATEST_TAG..HEAD | sed 's/ *$//g')
           if [ "$IS_RELEASE" = true ]; then
             export BODY=$(echo -e "$GIT_LOG")
@@ -495,7 +606,8 @@ jobs:
           OUTPUT_SAFE_BODY="${OUTPUT_SAFE_BODY//$'\n'/'%0A'}"
           OUTPUT_SAFE_BODY="${OUTPUT_SAFE_BODY//$'\r'/'%0D'}"
           echo "::set-output name=BODY::$OUTPUT_SAFE_BODY"
-          echo "$BODY" > ${{ env.PLAT }}.txt
+          echo "$BODY" >> ${{ env.PLAT }}.txt
+          echo "$BODY"
 
       - name: Setup OSS
         uses: Qful/ossutil-action@master
