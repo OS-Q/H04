@@ -10,7 +10,7 @@ env:
   PLAT: "P22"
   TEMP: "F22"
   TOPIC: "GD32V Platform"
-  LASTV: "v0.0.2"
+  LASTV: "v0.0.1"
   JOB_TRANSFER_ARTIFACT: build-artifacts
 
 jobs:
@@ -50,7 +50,6 @@ jobs:
         path: codecheck.txt
 
   example:
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: true
       matrix:
@@ -58,11 +57,9 @@ jobs:
           - "eval-blink"
           - "arduino-blink"
           - "longan-nano-blink"
-        package:
-          - "all"
-          # - "qio"
-          # - "pio"
-
+        package: ["all","pio","qio"]
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -106,64 +103,6 @@ jobs:
       #     name: build_${{ matrix.example }}
       #     path: examples/${{ matrix.example }}/.pio/build
 
-  # upload:
-  #   needs:
-  #     - example
-  #   if: startsWith(github.ref, 'refs/tags/') && success()
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       package:
-  #         - "all"
-  #         - "qio"
-  #         - "pio"
-
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #       with:
-  #         submodules: "recursive"
-  #         fetch-depth: 1
-
-  #     - name: package all
-  #       if: matrix.package == 'all'
-  #       run: |
-  #         # mkdir ${{ matrix.package }}
-  #         # cp -rf boards builder extend misc link.json link.py platform.json platform.py ${{ matrix.package }}
-  #         # cp -f link.json link.py platform.json platform.py ${{ matrix.package }}
-  #         # ls -a package
-  #         zip -r package.zip boards builder extend misc link.json link.py platform.json platform.py
-
-  #     - name: package qio
-  #       if: matrix.package == 'qio'
-  #       run: |
-  #         # mkdir ${{ matrix.package }}
-  #         # cp -rf boards extend misc link.json link.py ${{ matrix.package }}
-  #         # cp -f link.json link.py ${{ matrix.package }}
-  #         # ls -a package
-  #         zip -r package.zip boards builder extend misc link.json link.py
-
-  #     - name: package pio
-  #       if: matrix.package == 'pio'
-  #       run: |
-  #         # mkdir ${{ matrix.package }}
-  #         # cp -rf boards builder misc ${{ matrix.package }}
-  #         # cp -f platform.json platform.py ${{ matrix.package }}
-  #         # ls -a package
-  #         zip -r ${{ matrix.package }}.zip boards builder misc platform.json platform.py
-
-
-
-      # - name: Upload [GitHub Actions]
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: ${{ env.JOB_TRANSFER_ARTIFACT }}
-      #     path: ${{ matrix.package }}.zip
-
-      # - name: rm folder
-      #   run: |
-      #     rm -rf package
-      #     rm -f package.zip
 
   example_tail:
     needs:
@@ -207,8 +146,8 @@ jobs:
       fail-fast: true
       matrix:
         template: ["A","B"]
-        package: ["qio"] # "pio",
-        os: [ubuntu-latest] #, windows-latest
+        package: ["pio","qio"]
+        os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -264,52 +203,12 @@ jobs:
   #         topic: ${{github.repository}}/${{github.workflow}}
   #         message: "build templete fail"
 
-  # release:
-  #   needs:
-  #     - upload
-  #   if: startsWith(github.ref, 'refs/tags/') && !failure()
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v2
-  #       with:
-  #         submodules: "recursive"
-  #         fetch-depth: 1
-
-  #     - name: Generate tag
-  #       id: tag
-  #       if: startsWith(github.ref, 'refs/tags/')
-  #       run: |
-  #         echo "::set-output name=release_tag::release_$(date +"%Y.%m.%d")_${GITHUB_REF/refs\/tags\//}"
-  #         echo "::set-output name=status::success"
-
-  #     - name: Package
-  #       id: package
-  #       run: |
-  #         zip -r all.zip boards builder extend misc link.json link.py platform.json platform.py
-  #         zip -r qio.zip boards extend misc link.json link.py
-  #         zip -r pio.zip boards builder misc platform.json platform.py
-  #         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
-  #         echo "::set-output name=status::success"
-
-  #     - name: Release version
-  #       id: upload-release
-  #       uses: Qful/release-action@master
-  #       if: steps.tag.outputs.status == 'success' && !cancelled()
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.OSQ_REPO_TOKEN }}
-  #       with:
-  #         tag_name: ${{ steps.tag.outputs.release_tag }}
-  #         files: |
-  #           ${{ env.FIRMWARE }}/all.zip
-  #           ${{ env.FIRMWARE }}/qio.zip
-  #           ${{ env.FIRMWARE }}/pio.zip
 
   release:
     # name: release ${{ matrix.artifact.name }}
-    # needs:
-    #   - templete
-    # if: success() && needs.templete.result != 'skipped'
+    needs:
+      - templete
+    if: success() && needs.templete.result != 'skipped'
     runs-on: ubuntu-latest
     steps:
       # - name: Download artifact
@@ -729,11 +628,11 @@ jobs:
           topic: ${{github.repository}}/${{github.workflow}}
           message: "package check fail"
 
-      - name: delet tag
-        run: |
-          git fetch
-          git tag -d ${GITHUB_REF/refs\/tags\//}
-          git push origin :refs/tags/${GITHUB_REF/refs\/tags\//}
+      # - name: delet tag
+      #   run: |
+      #     git fetch
+      #     git tag -d ${GITHUB_REF/refs\/tags\//}
+      #     git push origin :refs/tags/${GITHUB_REF/refs\/tags\//}
 
   # clean:
   #   # This job must run after all jobs that use the transfer artifact.
