@@ -57,7 +57,7 @@ jobs:
           - "eval-blink"
           - "arduino-blink"
           - "longan-nano-blink"
-        package: ["all","pio","qio"]
+        package: ["pio","qio"]
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -71,24 +71,16 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: Install all
-        if: matrix.package == 'all'
-        run: |
-          pip install -U https://github.com/OS-Q/${{ env.MONT }}/releases/latest/download/qio.zip
-          qio platform install file://.
-
       - name: Install qio
         if: matrix.package == 'qio'
         run: |
           pip install -U https://github.com/OS-Q/${{ env.MONT }}/releases/latest/download/qio.zip
-          # qio platform install https://github.com/OS-Q/${{ env.PLAT }}/releases/latest/download/qio.zip
           qio platform install file://.
 
       - name: Install pio
         if: matrix.package == 'pio'
         run: |
           pip install -U https://github.com/platformio/platformio/archive/develop.zip
-          # pio platform install https://github.com/OS-Q/${{ env.PLAT }}/archive/pio.zip
           pio platform install file://.
 
       - name: build examples

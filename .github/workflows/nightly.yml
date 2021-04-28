@@ -21,11 +21,8 @@ jobs:
           - "eval-blink"
           - "arduino-blink"
           - "longan-nano-blink"
+        package: ["master","qio"]
         os: [ubuntu-latest, windows-latest]
-        package:
-          - "all"
-          - "qio"
-          - "latest"
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -39,25 +36,17 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: Install all
-        if: matrix.package == 'all'
-        run: |
-          pip install -U https://github.com/platformio/platformio/archive/develop.zip
-          pio platform install https://github.com/OS-Q/P22/releases/latest/download/all.zip
-          pip install -U https://github.com/OS-Q/M03/releases/latest/download/qio.zip
-          qio platform install https://github.com/OS-Q/P22/releases/latest/download/all.zip
-
       - name: Install qio
         if: matrix.package == 'qio'
         run: |
           pip install -U https://github.com/OS-Q/M03/releases/latest/download/qio.zip
           qio platform install https://github.com/OS-Q/P22/releases/latest/download/qio.zip
 
-      - name: Install latest
-        if: matrix.package == 'latest'
+      - name: Install master
+        if: matrix.package == 'master'
         run: |
           pip install -U https://github.com/OS-Q/M03/releases/latest/download/qio.zip
-          qio platform install https://github.com/OS-Q/P22/archive/qio.zip
+          qio platform install file://.
 
       - name: Build
         if: success()
@@ -97,12 +86,8 @@ jobs:
           - "eval-blink"
           - "arduino-blink"
           - "longan-nano-blink"
+        package: ["master","pio"]
         os: [ubuntu-latest, windows-latest]
-        package:
-          - "all"
-          - "pio"
-          - "latest"
-
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -115,23 +100,17 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: Install all
-        if: matrix.package == 'all'
+      - name: Install master
+        if: matrix.package == 'master'
         run: |
           pip install -U https://github.com/platformio/platformio/archive/develop.zip
-          pio platform install https://github.com/OS-Q/P22/releases/latest/download/all.zip
+          pio platform install file://.
 
       - name: Install pio
         if: matrix.package == 'pio'
         run: |
           pip install -U https://github.com/platformio/platformio/archive/develop.zip
           pio platform install https://github.com/OS-Q/P22/releases/latest/download/pio.zip
-
-      - name: Install latest
-        if: matrix.package == 'latest'
-        run: |
-          pip install -U https://github.com/platformio/platformio/archive/develop.zip
-          pio platform install https://github.com/OS-Q/P22/archive/pio.zip
 
       - name: Build
         if: success()

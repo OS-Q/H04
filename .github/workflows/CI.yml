@@ -63,7 +63,6 @@ jobs:
           - "eval-blink"
           - "arduino-blink"
           - "longan-nano-blink"
-
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -90,12 +89,12 @@ jobs:
         run: |
           pio run -d ${{ matrix.example }}
 
-      - name: Upload
-        if: env.UPLOAD_BUILD
-        uses: actions/upload-artifact@v2
-        with:
-          name: qio_ci_build_${{ matrix.example }}_${{ matrix.os }}
-          path: examples/${{ matrix.example }}/.pio/build/
+      # - name: Upload
+      #   if: env.UPLOAD_BUILD
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: qio_ci_build_${{ matrix.example }}_${{ matrix.os }}
+      #     path: examples/${{ matrix.example }}/.pio/build/
 
   QIO_tail:
     needs:
@@ -151,12 +150,12 @@ jobs:
           pio run -d ${{ matrix.example }}
           echo "::set-output name=status::success"
 
-      - name: Upload
-        if: env.UPLOAD_BUILD
-        uses: actions/upload-artifact@v2
-        with:
-          name: pio_ci_build_${{ matrix.example }}_${{ matrix.os }}
-          path: examples/${{ matrix.example }}/.pio/build
+      # - name: Upload
+      #   if: env.UPLOAD_BUILD
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: pio_ci_build_${{ matrix.example }}_${{ matrix.os }}
+      #     path: examples/${{ matrix.example }}/.pio/build/
 
   PIO_tail:
     needs:
