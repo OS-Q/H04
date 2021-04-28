@@ -10,6 +10,7 @@ env:
   PLAT: "P22"
   TEMP: "F22"
   TOPIC: "GD32V Platform"
+  LAST: "v0.0.2"
 
 jobs:
   Lint_Code:
@@ -392,8 +393,6 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: "recursive"
-          fetch-depth: 1
-
 
       - name: Checkout templete A
         uses: actions/checkout@v2
@@ -423,13 +422,8 @@ jobs:
       - name: Upload Package
         id: OSS
         run: |
-          echo ${GITHUB_REF/refs\/tags\//} >> ${{ env.PLAT }}.md
-          echo -e "Platform ${{ env.PLAT }} for GD32V MCU" >> ${{ env.PLAT }}.txt
-          echo ${GITHUB_REF/refs\/tags\//} >> ${{ env.PLAT }}.txt
-          git log --stat -3 >> ${{ env.PLAT }}.txt
           zip -r ${{ env.PLAT }}.zip examples boards builder extend misc link.json link.py platform.json platform.py
           ossutil cp ${{ env.PLAT }}.zip ${{ secrets.OSS_BUCKET_P }} -f
-          ossutil cp ${{ env.PLAT }}.txt ${{ secrets.OSS_MAIL_INFO }} -f
           echo "::set-output name=status::success"
 
       - name: notification
@@ -449,10 +443,22 @@ jobs:
     if: success()
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: "recursive"
+
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
           python-version: 3.9
+
+      - name: get message
+        id: message
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          git fetch
+          echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
       - name: Setup OSS
         uses: Qful/ossutil-action@master
@@ -464,8 +470,11 @@ jobs:
       - name: download package
         id: download
         run: |
+          echo -e "${{ env.TOPIC }} ${{ env.PLAT }}" >> ${{ env.PLAT }}.txt
+          echo ${GITHUB_REF/refs\/tags\//} >> ${{ env.PLAT }}.txt
+          git log ${{ env.PLAT }}..${{ env.VERSION }} --pretty=format:"%h - %an, %ar : %s" >> ${{ env.PLAT }}.txt
+          ossutil cp ${{ env.PLAT }}.txt ${{ secrets.OSS_MAIL_INFO }} -f
           ossutil cp ${{ secrets.OSS_BUCKET_P }}${{ env.PLAT }}.zip .
-          ossutil cp ${{ secrets.OSS_MAIL_INFO }}${{ env.PLAT }}.txt .
           ossutil cp ${{ secrets.OSS_MAIL_INFO }}${{ env.PLAT }}.md .
           echo "::set-output name=status::success"
 
@@ -476,12 +485,6 @@ jobs:
           pip install -U https://github.com/OS-Q/${{ env.MONT }}/releases/latest/download/qio.zip
           qio platform install file://./${{ env.PLAT }}.zip
 
-
-      - name: get message
-        id: message
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
       - name: Send Mail
         if: success()
@@ -499,6 +502,12 @@ jobs:
           convert_markdown: true
           attachments: ${{ env.PLAT }}.txt
           body: file://./${{ env.PLAT }}.md
+
+      # - name: delet tag
+      #   if: success()
+      #   run: |
+      #     git tag -d ${GITHUB_REF/refs\/tags\//}
+      #     git push origin :refs/tags/${GITHUB_REF/refs\/tags\//}
 
   package_tail:
     needs:
@@ -521,23 +530,6 @@ jobs:
           password: ${{secrets.MQTT_PASSWORD}}
           topic: ${{github.repository}}/${{github.workflow}}
           message: "package check fail"
-
-      - name: delet tag
-        run: |
-          git fetch
-          git tag -d ${GITHUB_REF/refs\/tags\//}
-          git push origin :refs/tags/${GITHUB_REF/refs\/tags\//}
-
-  clean_tags:
-    needs:
-      - package_tail
-    if: startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: "recursive"
 
       - name: delet tag
         run: |
