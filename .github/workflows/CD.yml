@@ -9,6 +9,7 @@ env:
   MONT: "M03"
   PLAT: "P22"
   TEMP: "F22"
+  TOPIC: "GD32VF103"
 
 jobs:
   Lint_Code:
@@ -201,27 +202,6 @@ jobs:
           echo "FIRMWARE=$PWD" >> $GITHUB_ENV
           echo "::set-output name=status::success"
 
-      # - name: Upload package
-      #   if: env.UPLOAD_BUILD
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name:  ${{ steps.tag.outputs.release_tag }}_all
-      #     path: ${{ env.FIRMWARE }}/all.zip
-
-      # - name: Upload qio
-      #   if: env.UPLOAD_BUILD
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: ${{ steps.tag.outputs.release_tag }}_qio
-      #     path: ${{ env.FIRMWARE }}/qio.zip
-
-      # - name: Upload pio
-      #   if: env.UPLOAD_BUILD
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: ${{ steps.tag.outputs.release_tag }}_pio
-      #     path: ${{ env.FIRMWARE }}/pio.zip
-
       - name: Release version
         id: upload-release
         uses: Qful/release-action@master
@@ -330,24 +310,24 @@ jobs:
     if: success()
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: "recursive"
-          fetch-depth: 1
+      # - name: Checkout
+      #   uses: actions/checkout@v2
+      #   with:
+      #     submodules: "recursive"
+      #     fetch-depth: 1
 
-      - name: Setup OSS
-        uses: Qful/ossutil-action@master
-        with:
-          endpoint: ${{ secrets.OSS_ENDPOINT }}
-          access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
-          access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+      # - name: Setup OSS
+      #   uses: Qful/ossutil-action@master
+      #   with:
+      #     endpoint: ${{ secrets.OSS_ENDPOINT }}
+      #     access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
+      #     access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
 
-      - name: upload package
-        id: OSS
-        run: |
-          zip -r ${{ env.PLAT }}.zip boards builder extend misc link.json link.py platform.json platform.py
-          ossutil cp ${{ env.PLAT }}.zip ${{ secrets.OSS_P_BUCKET }} -f
+      # - name: upload package
+      #   id: OSS
+      #   run: |
+      #     zip -r ${{ env.PLAT }}.zip boards builder extend misc link.json link.py platform.json platform.py
+      #     ossutil cp ${{ env.PLAT }}.zip ${{ secrets.OSS_P_BUCKET }} -f
 
       - name: notification
         uses: Qful/mqtt-action@master
@@ -371,26 +351,26 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: Setup OSS
-        uses: Qful/ossutil-action@master
-        with:
-          endpoint: ${{ secrets.OSS_ENDPOINT }}
-          access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
-          access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+      # - name: Setup OSS
+      #   uses: Qful/ossutil-action@master
+      #   with:
+      #     endpoint: ${{ secrets.OSS_ENDPOINT }}
+      #     access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
+      #     access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
 
-      - name: download package
-        id: download
-        run: |
-          ossutil cp ${{ secrets.OSS_P_BUCKET }}${{ env.PLAT }}.zip .
-          # ls -a ${{ env.PLAT }}.zip
-          echo "::set-output name=status::success"
+      # - name: download package
+      #   id: download
+      #   run: |
+      #     ossutil cp ${{ secrets.OSS_P_BUCKET }}${{ env.PLAT }}.zip .
+      #     # ls -a ${{ env.PLAT }}.zip
+      #     echo "::set-output name=status::success"
 
-      - name: Install package
-        if: steps.download.outputs.status == 'success' && !cancelled()
-        run: |
-          python -m pip install --upgrade pip
-          pip install -U https://github.com/OS-Q/${{ env.MONT }}/releases/latest/download/qio.zip
-          qio platform install file://./${{ env.PLAT }}.zip
+      # - name: Install package
+      #   if: steps.download.outputs.status == 'success' && !cancelled()
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     pip install -U https://github.com/OS-Q/${{ env.MONT }}/releases/latest/download/qio.zip
+      #     qio platform install file://./${{ env.PLAT }}.zip
 
       - name: notification
         uses: Qful/mqtt-action@master
@@ -472,15 +452,13 @@ jobs:
       - name: Upload Package
         id: OSS
         run: |
-          ossutil cp ${{ secrets.OSS_P_Q_BUCKET }}${{ env.PLAT }}.md .
           echo ${GITHUB_REF/refs\/tags\//} >> ${{ env.PLAT }}.md
           echo -e "Platform ${{ env.PLAT }} for GD32V MCU" >> ${{ env.PLAT }}.txt
           echo ${GITHUB_REF/refs\/tags\//} >> ${{ env.PLAT }}.txt
           git log --stat -3 >> ${{ env.PLAT }}.txt
           zip -r ${{ env.PLAT }}.zip examples boards builder extend misc link.json link.py platform.json platform.py
-          ossutil cp ${{ env.PLAT }}.zip ${{ secrets.OSS_P_Q_BUCKET }} -f
-          ossutil cp ${{ env.PLAT }}.txt ${{ secrets.OSS_P_Q_BUCKET }} -f
-          ossutil cp ${{ env.PLAT }}.md ${{ secrets.OSS_P_Q_BUCKET }} -f
+          ossutil cp ${{ env.PLAT }}.zip ${{ secrets.OSS_P_BUCKET }} -f
+          ossutil cp ${{ env.PLAT }}.txt ${{ secrets.OSS_MAIL_INFO }} -f
           echo "::set-output name=status::success"
 
       - name: notification
@@ -515,9 +493,9 @@ jobs:
       - name: download package
         id: download
         run: |
-          ossutil cp ${{ secrets.OSS_P_Q_BUCKET }}${{ env.PLAT }}.zip .
-          ossutil cp ${{ secrets.OSS_P_Q_BUCKET }}${{ env.PLAT }}.txt .
-          ossutil cp ${{ secrets.OSS_P_Q_BUCKET }}${{ env.PLAT }}.md .
+          ossutil cp ${{ secrets.OSS_P_BUCKET }}${{ env.PLAT }}.zip .
+          ossutil cp ${{ secrets.OSS_MAIL_INFO }}${{ env.PLAT }}.txt .
+          ossutil cp ${{ secrets.OSS_MAIL_INFO }}${{ env.PLAT }}.md .
           echo "::set-output name=status::success"
 
       - name: Install package
@@ -527,13 +505,6 @@ jobs:
           pip install -U https://github.com/OS-Q/${{ env.MONT }}/releases/latest/download/qio.zip
           qio platform install file://./${{ env.PLAT }}.zip
 
-      # - name: Build
-      #   id: build
-      #   if: success()
-      #   run: |
-      #     unzip ${{ env.PLAT }}.zip
-      #     qio run -d examples/A
-
       - name: Send Mail
         if: success()
         uses: Qful/mail-action@master
@@ -542,7 +513,7 @@ jobs:
           server_port: 465
           username: ${{secrets.MAIL_USERNAME}}
           password: ${{secrets.MAIL_PASSWORD}}
-          subject: OS-Q ${{ env.PLAT }} released (GD32V)
+          subject: OS-Q ${{ env.PLAT }}-${{ env.TOPIC }} released ${GITHUB_REF/refs\/tags\//}
           to: ${{secrets.MAIL_TO}}
           from: Qitas
           cc: ${{github.event.pusher.email}}
@@ -572,6 +543,23 @@ jobs:
           password: ${{secrets.MQTT_PASSWORD}}
           topic: ${{github.repository}}/${{github.workflow}}
           message: "package check fail"
+
+      - name: delet tag
+        run: |
+          git fetch
+          git tag -d ${GITHUB_REF/refs\/tags\//}
+          git push origin :refs/tags/${GITHUB_REF/refs\/tags\//}
+
+  clean_tags:
+    needs:
+      - package_tail
+    if: startsWith(github.ref, 'refs/tags/') && cancelled()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: "recursive"
 
       - name: delet tag
         run: |
