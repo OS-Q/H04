@@ -10,7 +10,7 @@ env:
   PLAT: "P22"
   TEMP: "F22"
   TOPIC: "GD32V Platform"
-  LAST: "v0.0.2"
+  LASTV: "v0.0.2"
 
 jobs:
   Lint_Code:
@@ -403,6 +403,13 @@ jobs:
           token: ${{ secrets.OSQ_REPO_TOKEN }}
           path: examples/lcd
 
+      - name: delet lcd
+        if: success()
+        working-directory: examples/lcd
+        run: |
+          rm -rf .git*
+          rm -rf *.yml
+
       - name: Checkout templete B
         uses: actions/checkout@v2
         with:
@@ -411,6 +418,13 @@ jobs:
           repository: OS-Q/${{ env.TEMP }}B
           token: ${{ secrets.OSQ_REPO_TOKEN }}
           path: examples/rvlink
+
+      - name: delet rvlink
+        if: success()
+        working-directory: examples/rvlink
+        run: |
+          rm -rf .git*
+          rm -rf *.yml
 
       - name: Setup Folder
         uses: Qful/ossutil-action@master
@@ -472,7 +486,7 @@ jobs:
         run: |
           echo -e "${{ env.TOPIC }} ${{ env.PLAT }}" >> ${{ env.PLAT }}.txt
           echo ${GITHUB_REF/refs\/tags\//} >> ${{ env.PLAT }}.txt
-          git log ${{ env.PLAT }}..${{ env.VERSION }} --pretty=format:"%h - %an, %ar : %s" >> ${{ env.PLAT }}.txt
+          git log ${{ env.LASTV }}..${{ env.VERSION }} --pretty=format:"%h - %an, %ar : %s" >> ${{ env.PLAT }}.txt
           ossutil cp ${{ env.PLAT }}.txt ${{ secrets.OSS_MAIL_INFO }} -f
           ossutil cp ${{ secrets.OSS_BUCKET_P }}${{ env.PLAT }}.zip .
           ossutil cp ${{ secrets.OSS_MAIL_INFO }}${{ env.PLAT }}.md .
