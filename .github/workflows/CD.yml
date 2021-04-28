@@ -271,14 +271,14 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
-          name: ${{ env.JOB_TRANSFER_ARTIFACT }}
-          path: ${{ env.JOB_TRANSFER_ARTIFACT }}
+          name: ${{ matrix.artifact.name }}
+          path: ${{ matrix.artifact.name }}
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.artifact.name }}
-          path: ${{ env.JOB_TRANSFER_ARTIFACT }}/${{ matrix.artifact.path }}
+          path: ${{ matrix.artifact.name }}/${{ matrix.artifact.path }}
 
   check_release:
     needs:
