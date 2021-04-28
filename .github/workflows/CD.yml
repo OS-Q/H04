@@ -106,72 +106,59 @@ jobs:
       #     name: build_${{ matrix.example }}
       #     path: examples/${{ matrix.example }}/.pio/build
 
-  upload:
-    needs:
-      - example
-    if: startsWith(github.ref, 'refs/tags/') && success()
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        package:
-          - "all"
-          - "qio"
-          - "pio"
+  # upload:
+  #   needs:
+  #     - example
+  #   if: startsWith(github.ref, 'refs/tags/') && success()
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       package:
+  #         - "all"
+  #         - "qio"
+  #         - "pio"
 
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: "recursive"
-          fetch-depth: 1
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         submodules: "recursive"
+  #         fetch-depth: 1
 
-      - name: package all
-        if: matrix.package == 'all'
-        run: |
-          # mkdir ${{ matrix.package }}
-          # cp -rf boards builder extend misc link.json link.py platform.json platform.py ${{ matrix.package }}
-          # cp -f link.json link.py platform.json platform.py ${{ matrix.package }}
-          # ls -a package
-          zip -r package.zip boards builder extend misc link.json link.py platform.json platform.py
+  #     - name: package all
+  #       if: matrix.package == 'all'
+  #       run: |
+  #         # mkdir ${{ matrix.package }}
+  #         # cp -rf boards builder extend misc link.json link.py platform.json platform.py ${{ matrix.package }}
+  #         # cp -f link.json link.py platform.json platform.py ${{ matrix.package }}
+  #         # ls -a package
+  #         zip -r package.zip boards builder extend misc link.json link.py platform.json platform.py
 
-      - name: package qio
-        if: matrix.package == 'qio'
-        run: |
-          # mkdir ${{ matrix.package }}
-          # cp -rf boards extend misc link.json link.py ${{ matrix.package }}
-          # cp -f link.json link.py ${{ matrix.package }}
-          # ls -a package
-          zip -r package.zip boards builder extend misc link.json link.py
+  #     - name: package qio
+  #       if: matrix.package == 'qio'
+  #       run: |
+  #         # mkdir ${{ matrix.package }}
+  #         # cp -rf boards extend misc link.json link.py ${{ matrix.package }}
+  #         # cp -f link.json link.py ${{ matrix.package }}
+  #         # ls -a package
+  #         zip -r package.zip boards builder extend misc link.json link.py
 
-      - name: package pio
-        if: matrix.package == 'pio'
-        run: |
-          # mkdir ${{ matrix.package }}
-          # cp -rf boards builder misc ${{ matrix.package }}
-          # cp -f platform.json platform.py ${{ matrix.package }}
-          # ls -a package
-          zip -r ${{ matrix.package }}.zip boards builder misc platform.json platform.py
+  #     - name: package pio
+  #       if: matrix.package == 'pio'
+  #       run: |
+  #         # mkdir ${{ matrix.package }}
+  #         # cp -rf boards builder misc ${{ matrix.package }}
+  #         # cp -f platform.json platform.py ${{ matrix.package }}
+  #         # ls -a package
+  #         zip -r ${{ matrix.package }}.zip boards builder misc platform.json platform.py
 
-      - name: Get Tag
-        id: tag_name
-        run: |
-          echo ::set-output name=TAG_NAME::${GITHUB_REF#refs/tags/}
 
-      - name: Publish Release [GitHub]
-        uses: svenstaro/upload-release-action@2.2.0
-        with:
-          repo_token: ${{ secrets.OSQ_REPO_TOKEN }}
-          release_name: ${{ steps.tag_name.outputs.TAG_NAME }}
-          file: ${{ matrix.package }}.zip
-          tag: ${{ github.ref }}
-          file_glob: true
-          body: "This is my release text"
 
-      - name: Upload [GitHub Actions]
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ env.JOB_TRANSFER_ARTIFACT }}
-          path: ${{ matrix.package }}.zip
+      # - name: Upload [GitHub Actions]
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: ${{ env.JOB_TRANSFER_ARTIFACT }}
+      #     path: ${{ matrix.package }}.zip
 
       # - name: rm folder
       #   run: |
@@ -309,16 +296,25 @@ jobs:
   #           ${{ env.FIRMWARE }}/pio.zip
 
   release:
-    name: release ${{ matrix.artifact.name }}
+    # name: release ${{ matrix.artifact.name }}
     needs:
-      - upload
-    if: always() && needs.upload.result != 'skipped'
+      - templete
+    if: success() && needs.templete.result != 'skipped'
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ${{ env.JOB_TRANSFER_ARTIFACT }}
+      # - name: Download artifact
+      #   uses: actions/download-artifact@v2
+      #   with:
+      #     name: ${{ env.JOB_TRANSFER_ARTIFACT }}
+
+      - name: package all
+        run: |
+
+          zip -rf all.zip boards builder extend misc link.json link.py platform.json platform.py
+          zip -rf qio.zip boards builder extend misc link.json link.py
+          zip -rf pio.zip boards builder misc platform.json platform.py
+          mkdir package
+          mv *.zip package/
 
       - name: Get Tag
         id: tag_name
@@ -330,7 +326,7 @@ jobs:
         with:
           repo_token: ${{ secrets.OSQ_REPO_TOKEN }}
           release_name: ${{ steps.tag_name.outputs.TAG_NAME }}
-          file: ${{ env.JOB_TRANSFER_ARTIFACT }}/
+          file: package/
           tag: ${{ github.ref }}
           file_glob: true
           body: "This is my release text"
