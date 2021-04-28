@@ -342,7 +342,7 @@ jobs:
           release_name: ${{ steps.tag_name.outputs.TAG_NAME }}
           tag: ${{ github.ref }}
           file_glob: true
-          body: "This is my release 3"
+          body: "${{ env.PLAT }} 发布测试版本"
           file: package/*
 
 
