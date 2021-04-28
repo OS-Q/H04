@@ -106,7 +106,7 @@ jobs:
       #     name: build_${{ matrix.example }}
       #     path: examples/${{ matrix.example }}/.pio/build
 
-  upload_package:
+  upload:
     needs:
       - example
     if: startsWith(github.ref, 'refs/tags/') && success()
@@ -125,24 +125,32 @@ jobs:
           submodules: "recursive"
           fetch-depth: 1
 
-      - name: Install all
+      - name: package all
         if: matrix.package == 'all'
         run: |
           mkdir package
           cp -rf boards builder extend misc link.json link.py platform.json platform.py package
-          # zip -r all.zip boards builder extend misc link.json link.py platform.json platform.py
+          cp -f link.json link.py platform.json platform.py package
+          ls -a package
+          zip -r package.zip boards builder extend misc link.json link.py platform.json platform.py
 
-      - name: Install qio
+      - name: package qio
         if: matrix.package == 'qio'
         run: |
           mkdir package
           cp -rf boards extend misc link.json link.py package
+          cp -f link.json link.py package
+          ls -a package
+          zip -r package.zip boards builder extend misc link.json link.py
 
-      - name: Install pio
+      - name: package pio
         if: matrix.package == 'pio'
         run: |
           mkdir package
-          cp -rf boards builder misc platform.json platform.py package
+          cp -rf boards builder misc package
+          cp -f platform.json platform.py package
+          ls -a package
+          zip -r package.zip boards builder misc platform.json platform.py
 
       - name: Upload [GitHub Actions]
         uses: actions/upload-artifact@v2
@@ -153,6 +161,7 @@ jobs:
       - name: rm folder
         run: |
           rm -rf package
+          rm -f package.zip
 
   example_tail:
     needs:
