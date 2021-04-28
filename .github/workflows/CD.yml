@@ -307,9 +307,9 @@ jobs:
 
   release:
     # name: release ${{ matrix.artifact.name }}
-    needs:
-      - templete
-    if: success() && needs.templete.result != 'skipped'
+    # needs:
+    #   - templete
+    # if: success() && needs.templete.result != 'skipped'
     runs-on: ubuntu-latest
     steps:
       # - name: Download artifact
