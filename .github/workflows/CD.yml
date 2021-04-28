@@ -60,8 +60,8 @@ jobs:
           - "longan-nano-blink"
         package:
           - "all"
-          - "qio"
-          - "pio"
+          # - "qio"
+          # - "pio"
 
     steps:
       - uses: actions/checkout@v2
@@ -306,10 +306,14 @@ jobs:
       #   uses: actions/download-artifact@v2
       #   with:
       #     name: ${{ env.JOB_TRANSFER_ARTIFACT }}
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: "recursive"
+          fetch-depth: 1
 
-      - name: package all
+      - name: package src
         run: |
-
           zip -rf all.zip boards builder extend misc link.json link.py platform.json platform.py
           zip -rf qio.zip boards builder extend misc link.json link.py
           zip -rf pio.zip boards builder misc platform.json platform.py
