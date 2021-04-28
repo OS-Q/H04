@@ -345,8 +345,8 @@ jobs:
           release_name: ${{ steps.tag_name.outputs.TAG_NAME }}
           tag: ${{ github.ref }}
           file_glob: true
-          body: "This is my release text"
-          file: package/
+          body: "This is my release 3"
+          file: package/*
 
             # qio.zip
             # pio.zip
