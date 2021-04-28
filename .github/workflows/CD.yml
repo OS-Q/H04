@@ -152,6 +152,21 @@ jobs:
           # ls -a package
           zip -r ${{ matrix.package }}.zip boards builder misc platform.json platform.py
 
+      - name: Get Tag
+        id: tag_name
+        run: |
+          echo ::set-output name=TAG_NAME::${GITHUB_REF#refs/tags/}
+
+      - name: Publish Release [GitHub]
+        uses: svenstaro/upload-release-action@2.2.0
+        with:
+          repo_token: ${{ secrets.OSQ_REPO_TOKEN }}
+          release_name: ${{ steps.tag_name.outputs.TAG_NAME }}
+          file: ${{ matrix.package }}.zip
+          tag: ${{ github.ref }}
+          file_glob: true
+          body: "This is my release text"
+
       - name: Upload [GitHub Actions]
         uses: actions/upload-artifact@v2
         with:
@@ -318,7 +333,7 @@ jobs:
           file: ${{ env.JOB_TRANSFER_ARTIFACT }}/
           tag: ${{ github.ref }}
           file_glob: true
-          # body: ${{ needs.changelog.outputs.BODY }}
+          body: "This is my release text"
 
   check_release:
     needs:
@@ -333,56 +348,56 @@ jobs:
         with:
           fetch-depth: 0 # To fetch all history for all branches and tags.
 
-      - name: Generate Changelog
-        id: changelog
-        env:
-          IS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/') }}
-        run: |
-            export LATEST_TAG=$(git describe --abbrev=0)
-            export GIT_LOG=$(git log --pretty=" - %s [%h]" $LATEST_TAG..HEAD | sed 's/ *$//g')
-            if [ "$IS_RELEASE" = true ]; then
-              export BODY=$(echo -e "$GIT_LOG")
-            else
-              export LATEST_TAG_WITH_LINK=$(echo "[$LATEST_TAG](https://github.com/arduino/arduino-ide/releases/tag/$LATEST_TAG)")
-              if [ -z "$GIT_LOG" ]; then
-                  export BODY="There were no changes since version $LATEST_TAG_WITH_LINK."
-              else
-                  export BODY=$(echo -e "Changes since version $LATEST_TAG_WITH_LINK:\n$GIT_LOG")
-              fi
-            fi
-            echo -e "$BODY"
-            OUTPUT_SAFE_BODY="${BODY//'%'/'%25'}"
-            OUTPUT_SAFE_BODY="${OUTPUT_SAFE_BODY//$'\n'/'%0A'}"
-            OUTPUT_SAFE_BODY="${OUTPUT_SAFE_BODY//$'\r'/'%0D'}"
-            echo "::set-output name=BODY::$OUTPUT_SAFE_BODY"
-            echo "$BODY" > CHANGELOG.txt
+      # - name: Generate Changelog
+      #   id: changelog
+      #   env:
+      #     IS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/') }}
+      #   run: |
+      #       export LATEST_TAG=$(git describe --abbrev=0)
+      #       export GIT_LOG=$(git log --pretty=" - %s [%h]" $LATEST_TAG..HEAD | sed 's/ *$//g')
+      #       if [ "$IS_RELEASE" = true ]; then
+      #         export BODY=$(echo -e "$GIT_LOG")
+      #       else
+      #         export LATEST_TAG_WITH_LINK=$(echo "[$LATEST_TAG](https://github.com/arduino/arduino-ide/releases/tag/$LATEST_TAG)")
+      #         if [ -z "$GIT_LOG" ]; then
+      #             export BODY="There were no changes since version $LATEST_TAG_WITH_LINK."
+      #         else
+      #             export BODY=$(echo -e "Changes since version $LATEST_TAG_WITH_LINK:\n$GIT_LOG")
+      #         fi
+      #       fi
+      #       echo -e "$BODY"
+      #       OUTPUT_SAFE_BODY="${BODY//'%'/'%25'}"
+      #       OUTPUT_SAFE_BODY="${OUTPUT_SAFE_BODY//$'\n'/'%0A'}"
+      #       OUTPUT_SAFE_BODY="${OUTPUT_SAFE_BODY//$'\r'/'%0D'}"
+      #       echo "::set-output name=BODY::$OUTPUT_SAFE_BODY"
+      #       echo "$BODY" > CHANGELOG.txt
 
-      - name: Upload Changelog [GitHub Actions]
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ env.JOB_TRANSFER_ARTIFACT }}
-          path: CHANGELOG.txt
+      # - name: Upload Changelog [GitHub Actions]
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: ${{ env.JOB_TRANSFER_ARTIFACT }}
+      #     path: CHANGELOG.txt
 
-      - name: Download [GitHub Actions]
-        uses: actions/download-artifact@v2
-        with:
-          name: ${{ env.JOB_TRANSFER_ARTIFACT }}
-          path: ${{ env.JOB_TRANSFER_ARTIFACT }}
+      # - name: Download [GitHub Actions]
+      #   uses: actions/download-artifact@v2
+      #   with:
+      #     name: ${{ env.JOB_TRANSFER_ARTIFACT }}
+      #     path: ${{ env.JOB_TRANSFER_ARTIFACT }}
 
-      - name: Get Tag
-        id: tag_name
-        run: |
-          echo ::set-output name=TAG_NAME::${GITHUB_REF#refs/tags/}
+      # - name: Get Tag
+      #   id: tag_name
+      #   run: |
+      #     echo ::set-output name=TAG_NAME::${GITHUB_REF#refs/tags/}
 
-      - name: Publish Release [GitHub]
-        uses: svenstaro/upload-release-action@2.2.0
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          release_name: ${{ steps.tag_name.outputs.TAG_NAME }}
-          file: ${{ env.JOB_TRANSFER_ARTIFACT }}/*
-          tag: ${{ github.ref }}
-          file_glob: true
-          body: ${{ needs.check_release.outputs.BODY }}
+      # - name: Publish Release [GitHub]
+      #   uses: svenstaro/upload-release-action@2.2.0
+      #   with:
+      #     repo_token: ${{ secrets.GITHUB_TOKEN }}
+      #     release_name: ${{ steps.tag_name.outputs.TAG_NAME }}
+      #     file: ${{ env.JOB_TRANSFER_ARTIFACT }}/*
+      #     tag: ${{ github.ref }}
+      #     file_glob: true
+      #     body: ${{ needs.check_release.outputs.BODY }}
 
       - name: Set up Python
         uses: actions/setup-python@v1
@@ -568,7 +583,8 @@ jobs:
         working-directory: examples/lcd
         run: |
           rm -rf .git*
-          rm -rf *.yml
+          rm -rf .cir*
+          rm -f *.yml
 
       - name: Checkout templete B
         uses: actions/checkout@v2
@@ -584,7 +600,8 @@ jobs:
         working-directory: examples/rvlink
         run: |
           rm -rf .git*
-          rm -rf *.yml
+          rm -rf .cir*
+          rm -f *.yml
 
       - name: Setup Folder
         uses: Qful/ossutil-action@master
@@ -628,35 +645,35 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: get message
-        id: message
-        env:
-          IS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/') }}
-        run: |
-          git fetch
-          echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
-          echo -e "${{ env.TOPIC }} ${{ env.PLAT }}" >> ${{ env.PLAT }}.txt
-          echo -e "$(date +"%Y.%m.%d") ${GITHUB_REF/refs\/tags\//}" >> ${{ env.PLAT }}.txt
-          export LATEST_TAG=$(git describe --abbrev=0)
-          echo LATEST_TAG
-          export GIT_LOG=$(git log --pretty=" - %s [%h]" $LATEST_TAG..HEAD | sed 's/ *$//g')
-          if [ "$IS_RELEASE" = true ]; then
-            export BODY=$(echo -e "$GIT_LOG")
-          else
-            export LATEST_TAG_WITH_LINK=$(echo "[$LATEST_TAG](https://github.com/OS-Q/${{ env.MONT }}/releases/tag/$LATEST_TAG)")
-            if [ -z "$GIT_LOG" ]; then
-                export BODY="There were no changes since version $LATEST_TAG_WITH_LINK."
-            else
-                export BODY=$(echo -e "Changes since version $LATEST_TAG_WITH_LINK:\n$GIT_LOG")
-            fi
-          fi
-          echo -e "$BODY"
-          OUTPUT_SAFE_BODY="${BODY//'%'/'%25'}"
-          OUTPUT_SAFE_BODY="${OUTPUT_SAFE_BODY//$'\n'/'%0A'}"
-          OUTPUT_SAFE_BODY="${OUTPUT_SAFE_BODY//$'\r'/'%0D'}"
-          echo "::set-output name=BODY::$OUTPUT_SAFE_BODY"
-          echo "$BODY" >> ${{ env.PLAT }}.txt
-          echo "$BODY"
+      # - name: get message
+      #   id: message
+      #   env:
+      #     IS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/') }}
+      #   run: |
+      #     git fetch
+      #     echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+      #     echo -e "${{ env.TOPIC }} ${{ env.PLAT }}" >> ${{ env.PLAT }}.txt
+      #     echo -e "$(date +"%Y.%m.%d") ${GITHUB_REF/refs\/tags\//}" >> ${{ env.PLAT }}.txt
+      #     export LATEST_TAG=$(git describe --abbrev=0)
+      #     echo LATEST_TAG
+      #     export GIT_LOG=$(git log --pretty=" - %s [%h]" $LATEST_TAG..HEAD | sed 's/ *$//g')
+      #     if [ "$IS_RELEASE" = true ]; then
+      #       export BODY=$(echo -e "$GIT_LOG")
+      #     else
+      #       export LATEST_TAG_WITH_LINK=$(echo "[$LATEST_TAG](https://github.com/OS-Q/${{ env.MONT }}/releases/tag/$LATEST_TAG)")
+      #       if [ -z "$GIT_LOG" ]; then
+      #           export BODY="There were no changes since version $LATEST_TAG_WITH_LINK."
+      #       else
+      #           export BODY=$(echo -e "Changes since version $LATEST_TAG_WITH_LINK:\n$GIT_LOG")
+      #       fi
+      #     fi
+      #     echo -e "$BODY"
+      #     OUTPUT_SAFE_BODY="${BODY//'%'/'%25'}"
+      #     OUTPUT_SAFE_BODY="${OUTPUT_SAFE_BODY//$'\n'/'%0A'}"
+      #     OUTPUT_SAFE_BODY="${OUTPUT_SAFE_BODY//$'\r'/'%0D'}"
+      #     echo "::set-output name=BODY::$OUTPUT_SAFE_BODY"
+      #     echo "$BODY" >> ${{ env.PLAT }}.txt
+      #     echo "$BODY"
 
       - name: Setup OSS
         uses: Qful/ossutil-action@master
@@ -668,12 +685,12 @@ jobs:
       - name: download package
         id: download
         run: |
-          # echo -e "${{ env.TOPIC }} ${{ env.PLAT }}" >> ${{ env.PLAT }}.txt
-          # echo -e "$(date +"%Y.%m.%d") ${GITHUB_REF/refs\/tags\//}" >> ${{ env.PLAT }}.txt
-          # git log "${{ env.LASTV }}..${{ env.VERSION }}" --stat --pretty=format:"%h - %an, %ar : %s" >> ${{ env.PLAT }}.txt
+          echo -e "${{ env.TOPIC }} ${{ env.PLAT }}" >> ${{ env.PLAT }}.txt
+          echo -e "$(date +"%Y.%m.%d") ${GITHUB_REF/refs\/tags\//}" >> ${{ env.PLAT }}.txt
+          git log "${{ env.LASTV }}..${{ env.VERSION }}" --stat --pretty=format:"%h - %an, %ar : %s" >> ${{ env.PLAT }}.txt
           ossutil cp ${{ env.PLAT }}.txt ${{ secrets.OSS_MAIL_INFO }} -f
           ossutil cp ${{ secrets.OSS_BUCKET_P }}${{ env.PLAT }}.zip .
-          ossutil cp ${{ secrets.OSS_MAIL_INFO }}${{ env.PLAT }}.md .
+          # ossutil cp ${{ secrets.OSS_MAIL_INFO }}${{ env.PLAT }}.md .
           echo "::set-output name=status::success"
 
       - name: Install package
