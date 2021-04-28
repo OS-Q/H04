@@ -394,6 +394,7 @@ jobs:
         with:
           submodules: "recursive"
 
+
       - name: Checkout templete A
         uses: actions/checkout@v2
         with:
@@ -461,6 +462,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: "recursive"
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v1
@@ -469,10 +471,31 @@ jobs:
 
       - name: get message
         id: message
-        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          IS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/') }}
         run: |
           git fetch
           echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+          echo -e "${{ env.TOPIC }} ${{ env.PLAT }}" >> ${{ env.PLAT }}.txt
+          echo -e "$(date +"%Y.%m.%d") ${GITHUB_REF/refs\/tags\//}" >> ${{ env.PLAT }}.txt
+          export LATEST_TAG=$(git describe --abbrev=0)
+          export GIT_LOG=$(git log --pretty=" - %s [%h]" $LATEST_TAG..HEAD | sed 's/ *$//g')
+          if [ "$IS_RELEASE" = true ]; then
+            export BODY=$(echo -e "$GIT_LOG")
+          else
+            export LATEST_TAG_WITH_LINK=$(echo "[$LATEST_TAG](https://github.com/OS-Q/${{ env.MONT }}/releases/tag/$LATEST_TAG)")
+            if [ -z "$GIT_LOG" ]; then
+                export BODY="There were no changes since version $LATEST_TAG_WITH_LINK."
+            else
+                export BODY=$(echo -e "Changes since version $LATEST_TAG_WITH_LINK:\n$GIT_LOG")
+            fi
+          fi
+          echo -e "$BODY"
+          OUTPUT_SAFE_BODY="${BODY//'%'/'%25'}"
+          OUTPUT_SAFE_BODY="${OUTPUT_SAFE_BODY//$'\n'/'%0A'}"
+          OUTPUT_SAFE_BODY="${OUTPUT_SAFE_BODY//$'\r'/'%0D'}"
+          echo "::set-output name=BODY::$OUTPUT_SAFE_BODY"
+          echo "$BODY" > ${{ env.PLAT }}.txt
 
       - name: Setup OSS
         uses: Qful/ossutil-action@master
@@ -484,9 +507,9 @@ jobs:
       - name: download package
         id: download
         run: |
-          echo -e "${{ env.TOPIC }} ${{ env.PLAT }}" >> ${{ env.PLAT }}.txt
-          echo ${GITHUB_REF/refs\/tags\//} >> ${{ env.PLAT }}.txt
-          git log ${{ env.LASTV }}..${{ env.VERSION }} --pretty=format:"%h - %an, %ar : %s" >> ${{ env.PLAT }}.txt
+          # echo -e "${{ env.TOPIC }} ${{ env.PLAT }}" >> ${{ env.PLAT }}.txt
+          # echo -e "$(date +"%Y.%m.%d") ${GITHUB_REF/refs\/tags\//}" >> ${{ env.PLAT }}.txt
+          # git log "${{ env.LASTV }}..${{ env.VERSION }}" --stat --pretty=format:"%h - %an, %ar : %s" >> ${{ env.PLAT }}.txt
           ossutil cp ${{ env.PLAT }}.txt ${{ secrets.OSS_MAIL_INFO }} -f
           ossutil cp ${{ secrets.OSS_BUCKET_P }}${{ env.PLAT }}.zip .
           ossutil cp ${{ secrets.OSS_MAIL_INFO }}${{ env.PLAT }}.md .
@@ -550,3 +573,19 @@ jobs:
           git fetch
           git tag -d ${GITHUB_REF/refs\/tags\//}
           git push origin :refs/tags/${GITHUB_REF/refs\/tags\//}
+
+  # clean:
+  #   # This job must run after all jobs that use the transfer artifact.
+  #   needs:
+  #     - build
+  #     - publish
+  #     - release
+  #     - artifacts
+  #   if: always() && needs.build.result != 'skipped'
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Remove unneeded job transfer artifact
+  #       uses: geekyeggo/delete-artifact@v1
+  #       with:
+  #         name: ${{ env.JOB_TRANSFER_ARTIFACT }}
