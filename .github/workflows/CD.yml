@@ -128,40 +128,40 @@ jobs:
       - name: package all
         if: matrix.package == 'all'
         run: |
-          mkdir package
-          cp -rf boards builder extend misc link.json link.py platform.json platform.py package
-          cp -f link.json link.py platform.json platform.py package
-          ls -a package
-          zip -r package.zip boards builder extend misc link.json link.py platform.json platform.py
+          mkdir ${{ matrix.package }}
+          cp -rf boards builder extend misc link.json link.py platform.json platform.py ${{ matrix.package }}
+          cp -f link.json link.py platform.json platform.py ${{ matrix.package }}
+          # ls -a package
+          # zip -r package.zip boards builder extend misc link.json link.py platform.json platform.py
 
       - name: package qio
         if: matrix.package == 'qio'
         run: |
-          mkdir package
-          cp -rf boards extend misc link.json link.py package
-          cp -f link.json link.py package
-          ls -a package
-          zip -r package.zip boards builder extend misc link.json link.py
+          mkdir ${{ matrix.package }}
+          cp -rf boards extend misc link.json link.py ${{ matrix.package }}
+          cp -f link.json link.py ${{ matrix.package }}
+          # ls -a package
+          # zip -r package.zip boards builder extend misc link.json link.py
 
       - name: package pio
         if: matrix.package == 'pio'
         run: |
-          mkdir package
-          cp -rf boards builder misc package
-          cp -f platform.json platform.py package
-          ls -a package
-          zip -r package.zip boards builder misc platform.json platform.py
+          mkdir ${{ matrix.package }}
+          cp -rf boards builder misc ${{ matrix.package }}
+          cp -f platform.json platform.py ${{ matrix.package }}
+          # ls -a package
+          # zip -r package.zip boards builder misc platform.json platform.py
 
       - name: Upload [GitHub Actions]
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ env.JOB_TRANSFER_ARTIFACT }}
-          path: package/
+          name: ${{ matrix.package }}
+          path: ${{ matrix.package }}/
 
-      - name: rm folder
-        run: |
-          rm -rf package
-          rm -f package.zip
+      # - name: rm folder
+      #   run: |
+      #     rm -rf package
+      #     rm -f package.zip
 
   example_tail:
     needs:
