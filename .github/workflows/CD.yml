@@ -327,9 +327,6 @@ jobs:
           zip -r all.zip boards builder extend misc link.json link.py platform.json platform.py
           zip -r qio.zip boards extend misc link.json link.py
           zip -r pio.zip boards builder misc platform.json platform.py
-          # zip -rf all.zip boards builder extend misc link.json link.py platform.json platform.py
-          # zip -rf qio.zip boards builder extend misc link.json link.py
-          # zip -rf pio.zip boards builder misc platform.json platform.py
           mkdir package
           cp *.zip package/
 
@@ -348,8 +345,6 @@ jobs:
           body: "This is my release 3"
           file: package/*
 
-            # qio.zip
-            # pio.zip
 
   check_release:
     needs:
@@ -661,36 +656,6 @@ jobs:
         with:
           python-version: 3.9
 
-      # - name: get message
-      #   id: message
-      #   env:
-      #     IS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/') }}
-      #   run: |
-      #     git fetch
-      #     echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
-      #     echo -e "${{ env.TOPIC }} ${{ env.PLAT }}" >> ${{ env.PLAT }}.txt
-      #     echo -e "$(date +"%Y.%m.%d") ${GITHUB_REF/refs\/tags\//}" >> ${{ env.PLAT }}.txt
-      #     export LATEST_TAG=$(git describe --abbrev=0)
-      #     echo LATEST_TAG
-      #     export GIT_LOG=$(git log --pretty=" - %s [%h]" $LATEST_TAG..HEAD | sed 's/ *$//g')
-      #     if [ "$IS_RELEASE" = true ]; then
-      #       export BODY=$(echo -e "$GIT_LOG")
-      #     else
-      #       export LATEST_TAG_WITH_LINK=$(echo "[$LATEST_TAG](https://github.com/OS-Q/${{ env.MONT }}/releases/tag/$LATEST_TAG)")
-      #       if [ -z "$GIT_LOG" ]; then
-      #           export BODY="There were no changes since version $LATEST_TAG_WITH_LINK."
-      #       else
-      #           export BODY=$(echo -e "Changes since version $LATEST_TAG_WITH_LINK:\n$GIT_LOG")
-      #       fi
-      #     fi
-      #     echo -e "$BODY"
-      #     OUTPUT_SAFE_BODY="${BODY//'%'/'%25'}"
-      #     OUTPUT_SAFE_BODY="${OUTPUT_SAFE_BODY//$'\n'/'%0A'}"
-      #     OUTPUT_SAFE_BODY="${OUTPUT_SAFE_BODY//$'\r'/'%0D'}"
-      #     echo "::set-output name=BODY::$OUTPUT_SAFE_BODY"
-      #     echo "$BODY" >> ${{ env.PLAT }}.txt
-      #     echo "$BODY"
-
       - name: Setup OSS
         uses: Qful/ossutil-action@master
         with:
@@ -701,6 +666,7 @@ jobs:
       - name: download package
         id: download
         run: |
+          echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
           echo -e "${{ env.TOPIC }} ${{ env.PLAT }}" >> ${{ env.PLAT }}.txt
           echo -e "$(date +"%Y.%m.%d") ${GITHUB_REF/refs\/tags\//}" >> ${{ env.PLAT }}.txt
           git log "${{ env.LASTV }}..${{ env.VERSION }}" --stat --pretty=format:"%h - %an, %ar : %s" >> ${{ env.PLAT }}.txt
@@ -709,13 +675,14 @@ jobs:
           ossutil cp ${{ secrets.OSS_MAIL_INFO }}${{ env.PLAT }}.md .
           echo "::set-output name=status::success"
 
-      - name: Install package
+      - name: Install test
         if: steps.download.outputs.status == 'success' && !cancelled()
         run: |
           python -m pip install --upgrade pip
+          pip install -U https://github.com/platformio/platformio/archive/develop.zip
+          pio platform install file://./${{ env.PLAT }}.zip
           pip install -U https://github.com/OS-Q/${{ env.MONT }}/releases/latest/download/qio.zip
           qio platform install file://./${{ env.PLAT }}.zip
-
 
       - name: Send Mail
         if: success()
