@@ -10,7 +10,7 @@ env:
   PLAT: "P22"
   TEMP: "F22"
   TOPIC: "GD32V Platform"
-  LASTV: "v0.0.1"
+  LASTV: "v0.0.2"
   JOB_TRANSFER_ARTIFACT: build-artifacts
 
 jobs:
