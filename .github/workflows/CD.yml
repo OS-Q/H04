@@ -84,7 +84,7 @@ jobs:
       #     name: build_${{ matrix.example }}
       #     path: examples/${{ matrix.example }}/.pio/build
 
-  build_example_tail:
+  example_tail:
     needs:
       - example
     if: startsWith(github.ref, 'refs/tags/') && !success()
@@ -156,7 +156,7 @@ jobs:
         run: |
           qio run -d .
 
-  build_templete_tail:
+  templete_tail:
     needs:
       - templete
     if: startsWith(github.ref, 'refs/tags/') && failure()
@@ -295,7 +295,7 @@ jobs:
         run: |
           qio run -d examples/arduino-blink
 
-  check_release_tail:
+  release_tail:
     needs:
       - check_release
     if: startsWith(github.ref, 'refs/tags/') && !success()
@@ -403,7 +403,7 @@ jobs:
           topic: ${{github.repository}}/${{github.workflow}}
           message: "deploy package success"
 
-  check_deploy_tail:
+  deploy_tail:
     needs:
       - check_deploy
     if: startsWith(github.ref, 'refs/tags/') && !success()
@@ -551,7 +551,7 @@ jobs:
           attachments: ${{ env.PLAT }}.txt
           body: file://./${{ env.PLAT }}.md
 
-  check_package_tail:
+  package_tail:
     needs:
       - check_package
     if: startsWith(github.ref, 'refs/tags/') && !success()
