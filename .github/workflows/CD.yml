@@ -7,7 +7,7 @@ on:
 
 env:
   MONT: "M03"
-  PLAT: "P22"
+  PLAT: "P212"
   TEMP: "F22"
   TOPIC: "GD32V Platform"
   LASTV: "v0.0.2"
