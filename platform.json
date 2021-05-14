@@ -1,6 +1,6 @@
 {
-    "name": "P22",
-    "title": "Platform RISC-V GD32V",
+    "name": "P212",
+    "title": "Platform RISC-V GD32V103 MCU",
     "version": "1.2.1",
     "description": "The GigaDevice GD32V device is a 32-bit general-purpose microcontroller based on the RISC-V core with an impressive balance of processing power, reduced power consumption and peripheral set.",
     "homepage": "https://www.gigadevice.com/products/microcontrollers/gd32/risc-v/",
