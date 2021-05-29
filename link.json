@@ -1,5 +1,5 @@
 {
-    "name": "P212",
+    "name": "P221",
     "title": "Platform RISC-V GD32V MCU",
     "version": "1.2.1",
     "description": "GigaDevice GD32V 32-bit MCU based on the RISC-V core run 108MHz.",
@@ -20,7 +20,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/OS-Q/P212.git"
+        "url": "https://github.com/OS-Q/P221.git"
     },
     "frameworks": {
         "gd32vf103-sdk": {

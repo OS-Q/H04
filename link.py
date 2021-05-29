@@ -1,6 +1,6 @@
 from platformio.managers.platform import PlatformBase
 
-class P212Platform(PlatformBase):
+class P221Platform(PlatformBase):
 
     def configure_default_packages(self, variables, targets):
         board = variables.get("board")
